@@ -1,14 +1,32 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { ArrowRight, Sparkles, Mail, Lock, User } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 export default function AuthPage() {
+  const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(false);
-  const [, setLocation] = useLocation();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocation("/dashboard");
+    setError("");
+    setLoading(true);
+    try {
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(username, email, password);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,19 +76,22 @@ export default function AuthPage() {
               </button>
             </div>
 
-            <form onSubmit={handleAuth} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3">
               {!isLogin && (
                 <div>
                   <label className="block text-xs font-medium text-foreground mb-1">
-                    Full Name
+                    Username
                   </label>
                   <div className="relative">
                     <User size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <input 
                       type="text" 
-                      placeholder="John Doe"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="johndoe"
                       className="w-full pl-8 pr-3 py-2 rounded border border-border bg-secondary text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                      data-testid="input-name"
+                      data-testid="input-username"
+                      required={!isLogin}
                     />
                   </div>
                 </div>
@@ -84,10 +105,13 @@ export default function AuthPage() {
                   <Mail size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input 
                     type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="w-full pl-8 pr-3 py-2 rounded border border-border bg-secondary text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                     autoFocus
                     data-testid="input-email"
+                    required
                   />
                 </div>
               </div>
@@ -100,9 +124,12 @@ export default function AuthPage() {
                   <Lock size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input 
                     type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     className="w-full pl-8 pr-3 py-2 rounded border border-border bg-secondary text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                     data-testid="input-password"
+                    required
                   />
                 </div>
                 {!isLogin && (
@@ -112,21 +139,18 @@ export default function AuthPage() {
                 )}
               </div>
 
-              {isLogin && (
-                <div className="text-right">
-                  <button type="button" className="text-xs text-primary hover:underline">
-                    Forgot password?
-                  </button>
-                </div>
+              {error && (
+                <p className="text-xs text-destructive">{error}</p>
               )}
 
               <button 
                 type="submit"
-                className="w-full bg-primary text-primary-foreground py-2 rounded text-xs font-medium flex items-center justify-center gap-1.5"
+                disabled={loading}
+                className="w-full bg-primary text-primary-foreground py-2 rounded text-xs font-medium flex items-center justify-center gap-1.5 disabled:opacity-50"
                 data-testid="button-submit-auth"
               >
-                {isLogin ? "Sign In" : "Create Account"}
-                <ArrowRight size={14} />
+                {loading ? "Please wait..." : (isLogin ? "Sign In" : "Create Account")}
+                {!loading && <ArrowRight size={14} />}
               </button>
             </form>
 
@@ -144,7 +168,7 @@ export default function AuthPage() {
         <p className="mt-4 text-center text-xs text-muted-foreground">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
           <button 
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => { setIsLogin(!isLogin); setError(""); }}
             className="text-primary font-medium hover:underline"
             data-testid="button-toggle-auth-mode"
           >

@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, LogOut, User } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, loading } = useAuth();
 
-  const navItems = [
-    { label: "Home", path: "/" },
-    { label: "Dashboard", path: "/dashboard" },
-  ];
+  const navItems = user 
+    ? [
+        { label: "Home", path: "/" },
+        { label: "Dashboard", path: "/dashboard" },
+        { label: "Account", path: "/account" },
+      ]
+    : [
+        { label: "Home", path: "/" },
+      ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -41,11 +48,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
               <div className="w-px h-4 bg-border mx-1.5" />
-              <Link href="/auth" data-testid="button-get-started">
-                <button className="bg-primary text-primary-foreground px-3 py-1 rounded text-xs font-medium">
-                  Get Started
-                </button>
-              </Link>
+              {!loading && (
+                user ? (
+                  <button 
+                    onClick={logout}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded text-xs font-medium text-muted-foreground hover:text-foreground"
+                    data-testid="button-logout"
+                  >
+                    <LogOut size={12} />
+                    Logout
+                  </button>
+                ) : (
+                  <Link href="/auth" data-testid="button-get-started">
+                    <button className="bg-primary text-primary-foreground px-3 py-1 rounded text-xs font-medium">
+                      Get Started
+                    </button>
+                  </Link>
+                )
+              )}
             </div>
 
             <button
@@ -77,13 +97,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 {item.label}
               </Link>
             ))}
-            <Link 
-              href="/auth" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="bg-primary text-primary-foreground px-2.5 py-1.5 rounded text-xs font-medium mt-1 text-center"
-            >
-              Get Started
-            </Link>
+            {user ? (
+              <button 
+                onClick={() => { logout(); setIsMobileMenuOpen(false); }}
+                className="px-2.5 py-1.5 rounded text-xs font-medium text-muted-foreground hover:text-foreground text-left"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link 
+                href="/auth" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="bg-primary text-primary-foreground px-2.5 py-1.5 rounded text-xs font-medium mt-1 text-center"
+              >
+                Get Started
+              </Link>
+            )}
           </nav>
         </div>
       )}

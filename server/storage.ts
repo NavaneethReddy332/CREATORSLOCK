@@ -13,33 +13,32 @@ import {
   type InsertUnlockAttempt
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  // Users
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, data: Partial<Pick<User, "username" | "password">>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<void>;
 
-  // Connections
   getUserConnections(userId: number): Promise<Connection[]>;
   getConnection(id: number): Promise<Connection | undefined>;
   createConnection(connection: InsertConnection): Promise<Connection>;
+  updateConnection(id: number, data: Partial<Pick<Connection, "platform" | "url">>): Promise<Connection | undefined>;
   deleteConnection(id: number): Promise<void>;
 
-  // Locked Links
   getUserLockedLinks(userId: number): Promise<LockedLink[]>;
   getLockedLinkByCode(unlockCode: string): Promise<LockedLink | undefined>;
   createLockedLink(link: InsertLockedLink): Promise<LockedLink>;
 
-  // Unlock Attempts
   createUnlockAttempt(attempt: InsertUnlockAttempt): Promise<UnlockAttempt>;
   getUnlockAttempt(linkId: number): Promise<UnlockAttempt | undefined>;
   updateUnlockAttempt(id: number, data: Partial<UnlockAttempt>): Promise<UnlockAttempt | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
-  // Users
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -50,15 +49,25 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
-  // Connections
+  async updateUser(id: number, data: Partial<Pick<User, "username" | "password">>): Promise<User | undefined> {
+    const [user] = await db.update(users).set(data).where(eq(users.id, id)).returning();
+    return user || undefined;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
   async getUserConnections(userId: number): Promise<Connection[]> {
     return await db.select().from(connections).where(eq(connections.userId, userId));
   }
@@ -69,18 +78,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createConnection(connection: InsertConnection): Promise<Connection> {
-    const [newConnection] = await db
-      .insert(connections)
-      .values(connection)
-      .returning();
+    const [newConnection] = await db.insert(connections).values(connection).returning();
     return newConnection;
+  }
+
+  async updateConnection(id: number, data: Partial<Pick<Connection, "platform" | "url">>): Promise<Connection | undefined> {
+    const [connection] = await db.update(connections).set(data).where(eq(connections.id, id)).returning();
+    return connection || undefined;
   }
 
   async deleteConnection(id: number): Promise<void> {
     await db.delete(connections).where(eq(connections.id, id));
   }
 
-  // Locked Links
   async getUserLockedLinks(userId: number): Promise<LockedLink[]> {
     return await db.select().from(lockedLinks).where(eq(lockedLinks.userId, userId));
   }
@@ -91,19 +101,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLockedLink(link: InsertLockedLink): Promise<LockedLink> {
-    const [newLink] = await db
-      .insert(lockedLinks)
-      .values(link)
-      .returning();
+    const [newLink] = await db.insert(lockedLinks).values(link).returning();
     return newLink;
   }
 
-  // Unlock Attempts
   async createUnlockAttempt(attempt: InsertUnlockAttempt): Promise<UnlockAttempt> {
-    const [newAttempt] = await db
-      .insert(unlockAttempts)
-      .values(attempt)
-      .returning();
+    const [newAttempt] = await db.insert(unlockAttempts).values(attempt).returning();
     return newAttempt;
   }
 
