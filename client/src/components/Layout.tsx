@@ -49,7 +49,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </header>
-
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
@@ -74,12 +73,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* MAIN CONTENT */}
-      <main className="flex-1 pt-16 w-full max-w-[1440px] mx-auto px-4 md:px-8">
+      <main className="flex-1 pt-16 w-full max-w-[1440px] mx-auto px-4 md:px-8 text-[#ffffff]">
         {children}
       </main>
-
       {/* FOOTER */}
       <footer className="border-t border-red-600 py-8 mt-20 bg-black text-center">
         <p className="text-xs text-red-800 font-mono tracking-widest uppercase">
