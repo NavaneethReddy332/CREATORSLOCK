@@ -1,0 +1,121 @@
+PROJECT NAME: Creator Lock / Link Unlock Tool
+
+THEME:
+- Strict two-color theme: YOU DECIDE BEST CLEAN ONE
+- No other colors allowed anywhere
+- Minimal, sharp, modern layout
+- Thin borders (1px(<1)
+- Very small border-radius (2px)
+- Small, tight text
+- Clean spacing, lots of empty space
+- Simple, low-motion animations only
+
+MAIN PURPOSE:
+A platform where creators can:
+1. Add their social media links (YouTube, Instagram, TikTok, etc.)
+2. Generate a locked link page
+3. Share that locked page with audience
+4. Users must “visit” creator’s social pages to unlock the final link or file
+
+SECTIONS OF THE WEBSITE:
+1. HEADER + NAVIGATION
+   - Left: Logo in red text
+   - Right: small navigation links (Home, Dashboard, About, Contact)
+   - Pure black background, thin red bottom border
+
+2. HERO SECTION
+   - Centered text
+   - Title: bold red
+   - Small description text
+   - One simple red button ("Get Started")
+
+3. SERVICES GRID
+   - Responsive grid of red-bordered boxes
+   - Each box explains a feature:
+       • Create Unlock Links
+       • Add Social Connections
+       • Host Files
+       • Encourage Support
+       • Track Engagement
+       • Share Anywhere
+   - Red border, black background
+
+4. ABOUT SECTION
+   - Red title
+   - Small paragraph about how it works
+   - Minimalistic layout
+
+5. CONTACT SECTION
+   - Form fields:
+       • Name
+       • Email
+       • Message
+   - All with black background + red borders
+   - Simple red submit button
+
+6. FOOTER
+   - Center text
+   - Thin top border
+   - Red text, black background
+
+------------------------------------
+
+DASHBOARD (FOR CREATORS)
+Includes:
+1. Connections Manager
+   - List of connected socials (YouTube, IG, TikTok, etc.)
+   - Each shown as a small red-border box
+   - Button: “Add Connection”
+
+2. Create Unlock Link Area
+   - Input field for “Final Link”
+   - Button to upload/host a file
+   - Button to “Generate Unlock Link”
+   - When generated, it becomes a public unlock page
+
+------------------------------------
+
+UNLOCK PAGE (PUBLIC PAGE USERS SEE)
+Purpose:
+- Users must complete simple “visit tasks” to reveal the final link.
+
+Structure:
+- Title: Creator Name
+- Message: “Complete tasks below to unlock the link.”
+- List of tasks (each one a red-bordered box):
+    • Visit YouTube link (button)
+    • Visit Instagram link (button)
+    • Visit TikTok link (button)
+- Each task has:
+    • Visit button
+    • Done button
+
+Once all tasks are marked done:
+- A final button appears: “GET FINAL LINK”
+
+------------------------------------
+
+ANIMATION RULE:
+- No excessive animation.
+- Only simple hover effects (slight scale, slight opacity change).
+- No transitions longer than 0.2s.
+
+------------------------------------
+
+RESPONSIVE RULES:
+- Grid collapses into single column on small screens.
+- Text remains small and compact.
+- Buttons stretch to 100% width on mobile.
+
+------------------------------------
+
+OVERALL STYLE:
+- Everything follows the strict black and red theme.
+- No images.
+- No icons.
+- No gradients.
+- Only flat black background and red lines/text.
+
+------------------------------------
+
+END OF FULL PROJECT IDEA
