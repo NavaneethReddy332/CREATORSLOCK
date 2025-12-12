@@ -300,7 +300,22 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Link not found" });
       }
 
-      res.json({ link });
+      const actionsWithUrls = await Promise.all(
+        link.parsedRequiredActions.map(async (action) => {
+          const connection = await storage.getConnection(action.connectionId);
+          return {
+            ...action,
+            url: connection?.url || null,
+          };
+        })
+      );
+
+      res.json({ 
+        link: {
+          ...link,
+          parsedRequiredActions: actionsWithUrls,
+        }
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
