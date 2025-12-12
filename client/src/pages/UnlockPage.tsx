@@ -1,103 +1,96 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Lock, Unlock, Youtube, Instagram, ArrowRight, ShieldCheck } from "lucide-react";
+import { Check, Lock, Unlock, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
 
 export default function UnlockPage() {
   const [tasks, setTasks] = useState([
-    { id: 1, type: "YouTube", action: "Subscribe", label: "Subscribe to Channel", done: false, url: "#" },
-    { id: 2, type: "Instagram", action: "Follow", label: "Follow on Instagram", done: false, url: "#" },
-    { id: 3, type: "TikTok", action: "Follow", label: "Follow on TikTok", done: false, url: "#" }
+    { id: 1, label: "SUBSCRIBE.YT", done: false },
+    { id: 2, label: "FOLLOW.IG", done: false },
+    { id: 3, label: "FOLLOW.TK", done: false }
   ]);
 
   const allDone = tasks.every(t => t.done);
 
   const handleTaskClick = (id: number) => {
-    // Simulate visiting link then marking done
     window.open("#", "_blank");
     setTasks(tasks.map(t => t.id === id ? { ...t, done: true } : t));
   };
 
   return (
-    <div className="min-h-screen bg-black font-sans flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black font-mono flex items-center justify-center p-4">
       
-      <div className="w-full max-w-md">
-        <div className="bg-black rounded-3xl shadow-xl shadow-blue-900/10 overflow-hidden border border-gray-800">
+      <div className="w-full max-w-[320px] border border-gray-800 bg-black relative">
+        {/* CORNER MARKERS */}
+        <div className="absolute -top-px -left-px w-2 h-2 border-t border-l border-blue-600"></div>
+        <div className="absolute -top-px -right-px w-2 h-2 border-t border-r border-blue-600"></div>
+        <div className="absolute -bottom-px -left-px w-2 h-2 border-b border-l border-blue-600"></div>
+        <div className="absolute -bottom-px -right-px w-2 h-2 border-b border-r border-blue-600"></div>
+
+        {/* HEADER */}
+        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/10">
+          <div className="flex items-center gap-2">
+            <Terminal size={12} className="text-blue-500" />
+            <span className="text-[10px] text-white uppercase tracking-widest">SECURE.GATE</span>
+          </div>
+          <div className={`w-2 h-2 rounded-full ${allDone ? 'bg-blue-600' : 'bg-gray-800'}`}></div>
+        </div>
+
+        {/* CONTENT */}
+        <div className="p-6 space-y-6">
           
-          {/* Header Section */}
-          <div className="bg-gray-900/50 p-8 text-white text-center relative overflow-hidden border-b border-gray-800">
-             <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_50%_120%,#fff_0%,transparent_50%)]"></div>
-             
-             <div className="relative z-10">
-               <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 transition-all duration-500 ${allDone ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-gray-800 text-white backdrop-blur-sm'}`}>
-                  {allDone ? <Unlock size={32} /> : <Lock size={32} />}
-               </div>
-               <h1 className="text-xl font-bold mb-2">Exclusive Content</h1>
-               <p className="text-gray-400 text-sm">
-                 Complete the steps below to unlock.
-               </p>
-             </div>
+          <div className="text-center space-y-2">
+            <div className="flex justify-center mb-4">
+              {allDone ? (
+                <Unlock size={24} className="text-blue-500" />
+              ) : (
+                <Lock size={24} className="text-gray-600" />
+              )}
+            </div>
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest">
+              Auth Required
+            </p>
           </div>
 
-          <div className="p-8">
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <motion.button 
-                  key={task.id}
-                  onClick={() => !task.done && handleTaskClick(task.id)}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  disabled={task.done}
-                  className={`w-full p-4 rounded-xl flex items-center justify-between transition-all border ${
-                    task.done 
-                      ? 'bg-blue-900/10 border-blue-900/30 cursor-default' 
-                      : 'bg-black border-gray-800 hover:border-blue-500 hover:shadow-md hover:shadow-blue-900/10'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-900 text-gray-400 border border-gray-800`}>
-                      {task.type === "YouTube" && <Youtube size={20} />}
-                      {task.type === "Instagram" && <Instagram size={20} />}
-                      {task.type === "TikTok" && <span className="font-bold text-xs">TK</span>}
-                    </div>
-                    <div className="text-left">
-                      <p className={`text-sm font-semibold ${task.done ? 'text-blue-400' : 'text-white'}`}>{task.label}</p>
-                      <p className="text-xs text-gray-500">{task.action}</p>
-                    </div>
-                  </div>
-
-                  {task.done ? (
-                    <div className="bg-blue-600/20 text-blue-400 p-1.5 rounded-full">
-                      <Check size={16} strokeWidth={3} />
-                    </div>
-                  ) : (
-                    <div className="bg-gray-900 text-gray-500 p-1.5 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      <ArrowRight size={16} />
-                    </div>
-                  )}
-                </motion.button>
-              ))}
-            </div>
-
-            <div className="mt-8">
+          <div className="space-y-2">
+            {tasks.map((task) => (
               <button 
-                disabled={!allDone}
-                className={`w-full py-4 rounded-xl font-bold text-lg transition-all shadow-lg ${
-                  allDone 
-                    ? 'bg-blue-600 text-white shadow-blue-600/20 hover:bg-blue-500 transform hover:-translate-y-1' 
-                    : 'bg-gray-900 text-gray-600 cursor-not-allowed shadow-none border border-gray-800'
+                key={task.id}
+                onClick={() => !task.done && handleTaskClick(task.id)}
+                disabled={task.done}
+                className={`w-full p-3 border text-[10px] uppercase tracking-wider flex items-center justify-between transition-all group ${
+                  task.done 
+                    ? 'border-blue-900/50 bg-blue-900/10 text-blue-400' 
+                    : 'border-gray-800 bg-black text-gray-500 hover:border-gray-600 hover:text-white'
                 }`}
               >
-                {allDone ? "Continue to Link" : "Complete Steps to Unlock"}
+                <span>{task.label}</span>
+                {task.done ? (
+                  <Check size={10} />
+                ) : (
+                  <ArrowRight size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
               </button>
-              
-              <div className="flex items-center justify-center gap-2 mt-6 text-xs text-gray-500">
-                <ShieldCheck size={12} />
-                <span>Securely protected by CreatorLock</span>
-              </div>
-            </div>
-
+            ))}
           </div>
+
+          <button 
+            disabled={!allDone}
+            className={`w-full py-3 text-[10px] uppercase font-bold tracking-widest transition-all ${
+              allDone 
+                ? 'bg-blue-600 text-white hover:bg-blue-500' 
+                : 'bg-gray-900 text-gray-600 cursor-not-allowed'
+            }`}
+          >
+            {allDone ? "ACCESS GRANTED" : "AWAITING AUTH"}
+          </button>
+
         </div>
+
+        {/* FOOTER */}
+        <div className="p-2 border-t border-gray-800 flex justify-center">
+          <span className="text-[8px] text-gray-700 uppercase">Encrypted by YOU RISE</span>
+        </div>
+
       </div>
     </div>
   );

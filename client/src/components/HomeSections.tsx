@@ -1,165 +1,155 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Link as LinkIcon, Share2, Lock, BarChart3, Users, Zap } from "lucide-react";
+import { Link as LinkIcon, Share2, Lock, BarChart3, Users, Zap, ArrowRight, Activity, Database, Globe } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="min-h-[80vh] flex flex-col items-center justify-center text-center py-20 relative">
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#3333330a_1px,transparent_1px),linear-gradient(to_bottom,#3333330a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+    <div className="w-full max-w-[1200px] mx-auto border-x border-gray-800 min-h-screen flex flex-col">
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-4xl px-4 flex flex-col items-center"
-      >
-        <span className="bg-gray-900 text-gray-300 px-4 py-1.5 rounded-full text-sm font-medium mb-8 border border-gray-800 inline-block">
-          New: TikTok Integration Available
-        </span>
-        
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
-          Unlock the power of<br />
-          <span className="text-blue-500">hidden content.</span>
-        </h1>
-        
-        <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-          The simplest way to grow your audience. Lock your exclusive files and links behind social actions.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+      {/* SECTION 1: HERO HEADER */}
+      <section className="border-b border-gray-800 p-8 md:p-12 flex flex-col md:flex-row justify-between items-end gap-8">
+        <div className="max-w-xl">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-1 bg-blue-600"></div>
+            <span className="text-[9px] text-blue-500 uppercase tracking-widest">Protocol initialized</span>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-medium text-white uppercase leading-[0.9] tracking-tighter mb-6">
+            Control<br/>
+            Access<br/>
+            Parameters
+          </h1>
+          <p className="text-[11px] text-gray-500 max-w-sm leading-relaxed border-l border-gray-800 pl-4">
+            A precise mechanism for content distribution. Gate URLs behind mandatory interaction protocols. Zero latency. Zero friction.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 w-full md:w-auto">
           <Link href="/dashboard">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="bg-blue-600 text-white font-semibold px-8 py-4 rounded-xl text-lg hover:bg-blue-500 transition-all border border-blue-500"
+              whileHover={{ backgroundColor: "#1e40af", color: "#ffffff" }}
+              className="bg-blue-900/20 text-blue-500 border border-blue-900/50 px-6 py-3 text-[10px] uppercase tracking-widest w-full text-center hover:border-blue-600 transition-colors"
             >
-              Start for Free
+              Start Sequence
             </motion.button>
           </Link>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="bg-black text-white font-semibold px-8 py-4 rounded-xl text-lg border border-gray-700 hover:bg-gray-900 transition-all"
-          >
-            View Demo
-          </motion.button>
+          <div className="flex justify-between items-center text-[9px] text-gray-700 px-1">
+             <span>V.2.0.4</span>
+             <span>SECURE</span>
+          </div>
         </div>
-      </motion.div>
-    </section>
-  );
-}
+      </section>
 
-const features = [
-  { icon: LinkIcon, title: "Smart Links", desc: "Gate any URL behind social actions instantly." },
-  { icon: Users, title: "Grow Audience", desc: "Convert casual visitors into loyal followers." },
-  { icon: Lock, title: "Secure Hosting", desc: "We host your files securely until unlocked." },
-  { icon: Zap, title: "Instant Setup", desc: "No coding required. Live in seconds." },
-  { icon: BarChart3, title: "Analytics", desc: "Track every click and unlock in real-time." },
-  { icon: Share2, title: "Viral Sharing", desc: "Optimized for sharing across all platforms." },
-];
+      {/* SECTION 2: METRICS BAR */}
+      <section className="border-b border-gray-800 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-800">
+        {[
+          { label: "Active Nodes", val: "8,492" },
+          { label: "Gateways", val: "24.5k" },
+          { label: "Throughput", val: "99.9%" },
+          { label: "Latency", val: "<40ms" }
+        ].map((stat, i) => (
+          <div key={i} className="p-4 hover:bg-gray-900/30 transition-colors">
+            <p className="text-[9px] text-gray-600 uppercase tracking-widest mb-1">{stat.label}</p>
+            <p className="text-sm text-white font-mono">{stat.val}</p>
+          </div>
+        ))}
+      </section>
 
-export function ServicesGrid() {
-  return (
-    <section className="py-24 bg-black rounded-3xl border border-gray-800 shadow-sm mx-4 md:mx-0">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-white mb-4">Everything you need</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">Powerful tools to help you manage your content and grow your reach, all in one simple dashboard.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              viewport={{ once: true }}
-              className="p-8 rounded-2xl bg-gray-900/20 hover:bg-gray-900 hover:shadow-xl transition-all border border-gray-800 hover:border-gray-700 group"
-            >
-              <div className="w-12 h-12 bg-gray-900 text-blue-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform border border-gray-800">
-                <feature.icon size={24} />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-500 transition-colors">
-                {feature.title}
-              </h3>
-              <p className="text-gray-500 leading-relaxed">
-                {feature.desc}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function AboutSection() {
-  return (
-    <section id="about" className="py-24">
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold text-white mb-8">How it works</h2>
-        <div className="grid md:grid-cols-3 gap-8 text-left">
-           <div className="bg-black p-6 rounded-2xl border border-gray-800 shadow-sm hover:border-blue-900 transition-colors">
-             <span className="text-5xl font-bold text-gray-800 block mb-4">01</span>
-             <h4 className="text-lg font-bold text-white mb-2">Create Link</h4>
-             <p className="text-gray-500">Upload your file or paste your destination link.</p>
-           </div>
-           <div className="bg-black p-6 rounded-2xl border border-gray-800 shadow-sm hover:border-blue-900 transition-colors">
-             <span className="text-5xl font-bold text-gray-800 block mb-4">02</span>
-             <h4 className="text-lg font-bold text-white mb-2">Set Tasks</h4>
-             <p className="text-gray-500">Choose what users must do (Subscribe, Follow, Like).</p>
-           </div>
-           <div className="bg-black p-6 rounded-2xl border border-gray-800 shadow-sm hover:border-blue-900 transition-colors">
-             <span className="text-5xl font-bold text-gray-800 block mb-4">03</span>
-             <h4 className="text-lg font-bold text-white mb-2">Get Results</h4>
-             <p className="text-gray-500">Watch your social metrics grow automatically.</p>
-           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function ContactSection() {
-  return (
-    <section id="contact" className="py-24 bg-black text-white rounded-t-[3rem] mt-20 border-t border-gray-900">
-      <div className="max-w-2xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold mb-8">Get in touch</h2>
-        <p className="text-gray-500 mb-12">Have questions? We're here to help you get the most out of Creator Lock.</p>
+      {/* SECTION 3: FEATURES GRID */}
+      <section className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-800">
         
-        <form className="space-y-4 text-left bg-gray-900/20 p-8 rounded-2xl border border-gray-800 backdrop-blur-sm" onSubmit={(e) => e.preventDefault()}>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Name</label>
-              <input 
-                type="text" 
-                className="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-gray-700"
-                placeholder="John Doe"
-              />
+        {/* COL 1 */}
+        <div className="p-8 flex flex-col justify-between hover:bg-gray-900/10 transition-colors">
+          <div>
+            <div className="w-6 h-6 border border-gray-800 flex items-center justify-center mb-6 text-gray-400">
+              <LinkIcon size={12} />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-400">Email</label>
-              <input 
-                type="email" 
-                className="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-gray-700"
-                placeholder="john@example.com"
-              />
+            <h3 className="text-white text-xs mb-2">Smart Linking</h3>
+            <p className="text-[10px] text-gray-600 leading-relaxed">
+              Generate encrypted gateways for any URL. Direct traffic flow through mandatory checkpoints.
+            </p>
+          </div>
+          <div className="border-t border-dotted border-gray-800 mt-8 pt-2">
+             <span className="text-[9px] text-gray-700">MOD.01</span>
+          </div>
+        </div>
+
+        {/* COL 2 */}
+        <div className="p-8 flex flex-col justify-between hover:bg-gray-900/10 transition-colors">
+          <div>
+            <div className="w-6 h-6 border border-gray-800 flex items-center justify-center mb-6 text-gray-400">
+              <Database size={12} />
             </div>
+            <h3 className="text-white text-xs mb-2">Secure Storage</h3>
+            <p className="text-[10px] text-gray-600 leading-relaxed">
+              Files hosted in secure vaults. Access granted only upon verification of social protocols.
+            </p>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-400">Message</label>
-            <textarea 
-              rows={4}
-              className="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-gray-700"
-              placeholder="How can we help?"
-            />
+          <div className="border-t border-dotted border-gray-800 mt-8 pt-2">
+             <span className="text-[9px] text-gray-700">MOD.02</span>
           </div>
-          <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition-all shadow-lg shadow-blue-900/20">
-            Send Message
-          </button>
-        </form>
-      </div>
-    </section>
+        </div>
+
+        {/* COL 3 */}
+        <div className="p-8 flex flex-col justify-between hover:bg-gray-900/10 transition-colors">
+          <div>
+            <div className="w-6 h-6 border border-gray-800 flex items-center justify-center mb-6 text-gray-400">
+              <Activity size={12} />
+            </div>
+            <h3 className="text-white text-xs mb-2">Real-time Telemetry</h3>
+            <p className="text-[10px] text-gray-600 leading-relaxed">
+              Monitor engagement metrics with millisecond precision. Full audit logs of user interaction.
+            </p>
+          </div>
+          <div className="border-t border-dotted border-gray-800 mt-8 pt-2">
+             <span className="text-[9px] text-gray-700">MOD.03</span>
+          </div>
+        </div>
+
+      </section>
+
+      {/* SECTION 4: CONTACT / TERMINAL */}
+      <section id="contact" className="border-t border-gray-800 p-8 md:p-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div>
+             <h2 className="text-white text-sm mb-6 flex items-center gap-2">
+               <span className="w-2 h-2 bg-blue-600"></span>
+               TRANSMISSION UPLINK
+             </h2>
+             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+               <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1">
+                   <label className="text-[9px] text-gray-600 uppercase">Identity</label>
+                   <input type="text" className="w-full bg-black border border-gray-800 px-3 py-2 text-white focus:border-blue-600 focus:outline-none transition-colors" />
+                 </div>
+                 <div className="space-y-1">
+                   <label className="text-[9px] text-gray-600 uppercase">Frequency</label>
+                   <input type="email" className="w-full bg-black border border-gray-800 px-3 py-2 text-white focus:border-blue-600 focus:outline-none transition-colors" />
+                 </div>
+               </div>
+               <div className="space-y-1">
+                 <label className="text-[9px] text-gray-600 uppercase">Payload</label>
+                 <textarea rows={3} className="w-full bg-black border border-gray-800 px-3 py-2 text-white focus:border-blue-600 focus:outline-none transition-colors"></textarea>
+               </div>
+               <button className="bg-white text-black px-6 py-2 text-[10px] uppercase font-bold hover:bg-blue-600 hover:text-white transition-colors w-full md:w-auto">
+                 Transmit
+               </button>
+             </form>
+          </div>
+
+          <div className="font-mono text-[10px] text-gray-600 space-y-2 hidden md:block">
+            <p className="text-blue-500">>> SYSTEM READY</p>
+            <p>>> LISTENING ON PORT 443...</p>
+            <p>>> WAITING FOR INPUT...</p>
+            <div className="h-32 border-l border-dotted border-gray-800 ml-1 mt-4"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
   );
 }
+
+// These are kept empty to satisfy imports if any, but logic moved to Hero
+export function ServicesGrid() { return null; }
+export function AboutSection() { return null; }
+export function ContactSection() { return null; }
