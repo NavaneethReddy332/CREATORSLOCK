@@ -5,7 +5,7 @@ import { Link as LinkIcon, Share2, Lock, BarChart3, Users, Zap } from "lucide-re
 export function Hero() {
   return (
     <section className="min-h-[80vh] flex flex-col items-center justify-center text-center py-20 relative">
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -13,16 +13,16 @@ export function Hero() {
         transition={{ duration: 0.6 }}
         className="max-w-4xl px-4 flex flex-col items-center"
       >
-        <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium mb-8 border border-blue-100 inline-block">
+        <span className="bg-blue-500/10 text-blue-400 px-4 py-1.5 rounded-full text-sm font-medium mb-8 border border-blue-500/20 inline-block">
           New: TikTok Integration Available
         </span>
         
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-gray-900 mb-6 leading-[1.1]">
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
           Unlock the power of<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">hidden content.</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-violet-400">hidden content.</span>
         </h1>
         
-        <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
           The simplest way to grow your audience. Lock your exclusive files and links behind social actions.
         </p>
         
@@ -31,7 +31,7 @@ export function Hero() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="bg-primary text-white font-semibold px-8 py-4 rounded-xl text-lg shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all"
+              className="bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-xl text-lg shadow-lg shadow-blue-500/20 hover:brightness-110 transition-all"
             >
               Start for Free
             </motion.button>
@@ -39,7 +39,7 @@ export function Hero() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white text-gray-700 font-semibold px-8 py-4 rounded-xl text-lg border border-gray-200 hover:bg-gray-50 transition-all"
+            className="bg-slate-800 text-white font-semibold px-8 py-4 rounded-xl text-lg border border-slate-700 hover:bg-slate-700 transition-all"
           >
             View Demo
           </motion.button>
@@ -60,11 +60,11 @@ const features = [
 
 export function ServicesGrid() {
   return (
-    <section className="py-24 bg-white rounded-3xl border border-gray-100 shadow-sm mx-4 md:mx-0">
+    <section className="py-24 bg-slate-900 rounded-3xl border border-slate-800 shadow-sm mx-4 md:mx-0">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Everything you need</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">Powerful tools to help you manage your content and grow your reach, all in one simple dashboard.</p>
+          <h2 className="text-3xl font-bold text-white mb-4">Everything you need</h2>
+          <p className="text-slate-400 max-w-2xl mx-auto">Powerful tools to help you manage your content and grow your reach, all in one simple dashboard.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -75,15 +75,15 @@ export function ServicesGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
               viewport={{ once: true }}
-              className="p-8 rounded-2xl bg-gray-50 hover:bg-white hover:shadow-xl hover:shadow-gray-200/50 transition-all border border-transparent hover:border-gray-100 group"
+              className="p-8 rounded-2xl bg-slate-950/50 hover:bg-slate-800 hover:shadow-xl hover:shadow-black/20 transition-all border border-slate-800 hover:border-slate-700 group"
             >
-              <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <feature.icon size={24} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
                 {feature.title}
               </h3>
-              <p className="text-gray-500 leading-relaxed">
+              <p className="text-slate-400 leading-relaxed">
                 {feature.desc}
               </p>
             </motion.div>
@@ -98,22 +98,22 @@ export function AboutSection() {
   return (
     <section id="about" className="py-24">
       <div className="max-w-4xl mx-auto px-6 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">How it works</h2>
+        <h2 className="text-3xl font-bold text-white mb-8">How it works</h2>
         <div className="grid md:grid-cols-3 gap-8 text-left">
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-             <span className="text-5xl font-bold text-gray-100 block mb-4">01</span>
-             <h4 className="text-lg font-bold text-gray-900 mb-2">Create Link</h4>
-             <p className="text-gray-500">Upload your file or paste your destination link.</p>
+           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
+             <span className="text-5xl font-bold text-slate-800 block mb-4">01</span>
+             <h4 className="text-lg font-bold text-white mb-2">Create Link</h4>
+             <p className="text-slate-400">Upload your file or paste your destination link.</p>
            </div>
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-             <span className="text-5xl font-bold text-gray-100 block mb-4">02</span>
-             <h4 className="text-lg font-bold text-gray-900 mb-2">Set Tasks</h4>
-             <p className="text-gray-500">Choose what users must do (Subscribe, Follow, Like).</p>
+           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
+             <span className="text-5xl font-bold text-slate-800 block mb-4">02</span>
+             <h4 className="text-lg font-bold text-white mb-2">Set Tasks</h4>
+             <p className="text-slate-400">Choose what users must do (Subscribe, Follow, Like).</p>
            </div>
-           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-             <span className="text-5xl font-bold text-gray-100 block mb-4">03</span>
-             <h4 className="text-lg font-bold text-gray-900 mb-2">Get Results</h4>
-             <p className="text-gray-500">Watch your social metrics grow automatically.</p>
+           <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
+             <span className="text-5xl font-bold text-slate-800 block mb-4">03</span>
+             <h4 className="text-lg font-bold text-white mb-2">Get Results</h4>
+             <p className="text-slate-400">Watch your social metrics grow automatically.</p>
            </div>
         </div>
       </div>
@@ -123,39 +123,39 @@ export function AboutSection() {
 
 export function ContactSection() {
   return (
-    <section id="contact" className="py-24 bg-gray-900 text-white rounded-t-[3rem] mt-20">
+    <section id="contact" className="py-24 bg-black text-white rounded-t-[3rem] mt-20 border-t border-slate-900">
       <div className="max-w-2xl mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold mb-8">Get in touch</h2>
-        <p className="text-gray-400 mb-12">Have questions? We're here to help you get the most out of Creator Lock.</p>
+        <p className="text-slate-400 mb-12">Have questions? We're here to help you get the most out of Creator Lock.</p>
         
-        <form className="space-y-4 text-left bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 backdrop-blur-sm" onSubmit={(e) => e.preventDefault()}>
+        <form className="space-y-4 text-left bg-slate-900/50 p-8 rounded-2xl border border-slate-800 backdrop-blur-sm" onSubmit={(e) => e.preventDefault()}>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Name</label>
+              <label className="text-sm font-medium text-slate-300">Name</label>
               <input 
                 type="text" 
-                className="w-full bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                className="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
                 placeholder="John Doe"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Email</label>
+              <label className="text-sm font-medium text-slate-300">Email</label>
               <input 
                 type="email" 
-                className="w-full bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                className="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
                 placeholder="john@example.com"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300">Message</label>
+            <label className="text-sm font-medium text-slate-300">Message</label>
             <textarea 
               rows={4}
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              className="w-full bg-black/50 border border-slate-700 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
               placeholder="How can we help?"
             />
           </div>
-          <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-3 rounded-lg transition-all shadow-lg shadow-blue-900/20">
+          <button className="w-full bg-primary hover:brightness-110 text-primary-foreground font-medium py-3 rounded-lg transition-all shadow-lg shadow-blue-900/20">
             Send Message
           </button>
         </form>
