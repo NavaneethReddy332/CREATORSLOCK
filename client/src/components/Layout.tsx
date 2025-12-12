@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Lock } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -16,12 +16,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-red-600 font-sans selection:bg-red-600 selection:text-black flex flex-col">
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans flex flex-col">
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-red-600 h-16 flex items-center justify-between px-6 md:px-12">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 h-16 flex items-center justify-between px-6 md:px-12 transition-all">
         <Link href="/">
-          <a className="font-mono text-xl font-bold tracking-tighter hover:text-red-500 transition-colors cursor-pointer data-[active]:text-red-500">
-            CREATOR_LOCK
+          <a className="flex items-center gap-2 font-bold text-lg tracking-tight hover:opacity-80 transition-opacity text-primary">
+            <div className="bg-primary text-white p-1 rounded-md">
+              <Lock size={16} strokeWidth={3} />
+            </div>
+            <span>CreatorLock</span>
           </a>
         </Link>
 
@@ -31,57 +34,82 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link key={item.path} href={item.path}>
               <a
                 className={cn(
-                  "text-sm font-medium tracking-wide uppercase hover:underline underline-offset-4 decoration-1",
-                  location === item.path ? "text-red-500 font-bold" : "text-red-700 hover:text-red-500"
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  location === item.path ? "text-primary font-semibold" : "text-gray-600"
                 )}
               >
                 {item.label}
               </a>
             </Link>
           ))}
+          <Link href="/dashboard">
+            <a className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md">
+              Get Started
+            </a>
+          </Link>
         </nav>
 
         {/* Mobile Nav Toggle */}
         <button
-          className="md:hidden text-red-600 hover:text-red-400"
+          className="md:hidden text-gray-600 hover:text-primary"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </header>
+
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-black pt-24 px-6 md:hidden"
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed inset-0 z-40 bg-white pt-24 px-6 md:hidden"
           >
-            <nav className="flex flex-col gap-6">
+            <nav className="flex flex-col gap-4">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
                   <a
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-2xl font-mono border-b border-red-900 pb-2 text-red-600 hover:text-red-400 hover:pl-2 transition-all"
+                    className="text-xl font-medium text-gray-800 py-3 border-b border-gray-100"
                   >
                     {item.label}
                   </a>
                 </Link>
               ))}
+              <Link href="/dashboard">
+                <a onClick={() => setIsMobileMenuOpen(false)} className="bg-primary text-white text-center py-3 rounded-lg font-medium mt-4">
+                  Get Started
+                </a>
+              </Link>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
+
       {/* MAIN CONTENT */}
-      <main className="flex-1 pt-16 w-full max-w-[1440px] mx-auto px-4 md:px-8 text-[#ffffff]">
+      <main className="flex-1 pt-16 w-full max-w-7xl mx-auto px-4 md:px-8">
         {children}
       </main>
+
       {/* FOOTER */}
-      <footer className="border-t border-red-600 py-8 mt-20 bg-black text-center">
-        <p className="text-xs text-red-800 font-mono tracking-widest uppercase">
-          © {new Date().getFullYear()} Creator Lock. Strict Simplicity.
-        </p>
+      <footer className="border-t border-gray-200 py-12 mt-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 font-bold text-gray-900">
+             <div className="bg-gray-900 text-white p-1 rounded-md">
+              <Lock size={14} strokeWidth={3} />
+            </div>
+            <span className="text-sm">CreatorLock</span>
+          </div>
+          <p className="text-sm text-gray-500">
+            © {new Date().getFullYear()} Creator Lock. Simple, Secure, Effective.
+          </p>
+          <div className="flex gap-6 text-sm text-gray-500">
+            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+            <a href="#" className="hover:text-primary transition-colors">Terms</a>
+          </div>
+        </div>
       </footer>
     </div>
   );

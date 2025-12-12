@@ -1,20 +1,25 @@
 import { Link } from "wouter";
-import { AlertTriangle } from "lucide-react";
+import { AlertCircle, Home } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-black text-red-600 font-mono p-4 text-center">
-      <AlertTriangle className="h-16 w-16 mb-6 text-red-600 animate-pulse" />
-      <h1 className="text-4xl font-bold mb-4 uppercase tracking-tighter">404 // Access Void</h1>
-      <p className="text-red-800 text-sm mb-8 uppercase tracking-widest max-w-md">
-        The requested sector does not exist within the system parameters.
-      </p>
-      
-      <Link href="/">
-        <a className="border border-red-600 px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-red-600 hover:text-black transition-colors">
-          Return to Base
-        </a>
-      </Link>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gray-50 text-gray-900 p-4 text-center">
+      <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-md w-full">
+        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+          <AlertCircle className="h-8 w-8" />
+        </div>
+        
+        <h1 className="text-2xl font-bold mb-2">Page Not Found</h1>
+        <p className="text-gray-500 mb-8">
+          The page you are looking for doesn't exist or has been moved.
+        </p>
+        
+        <Link href="/">
+          <a className="bg-gray-900 text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors inline-flex items-center gap-2 w-full justify-center">
+            <Home size={18} /> Return Home
+          </a>
+        </Link>
+      </div>
     </div>
   );
 }
