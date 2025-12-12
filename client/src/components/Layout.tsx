@@ -2,102 +2,122 @@ import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sparkles } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "INDEX", path: "/" },
-    { label: "DASH", path: "/dashboard" },
-    { label: "INFO", path: "/#about" },
-    { label: "COMM", path: "/#contact" },
+    { label: "Home", path: "/" },
+    { label: "Dashboard", path: "/dashboard" },
   ];
 
   return (
-    <div className="min-h-screen bg-bg-main text-fg-secondary font-mono flex flex-col selection:bg-accent-main selection:text-fg-primary">
-      {/* HEADER - Compact & Technical */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-bg-main border-b border-border-main h-10 flex items-center justify-between px-4">
-        <div className="flex items-center gap-4">
-          <Link href="/">
-            <a className="text-[10px] font-bold tracking-widest text-accent-main uppercase hover:text-fg-primary transition-colors">
-              YOU RISE
-            </a>
-          </Link>
-          <div className="h-3 w-px bg-border-main"></div>
-          <span className="text-[9px] text-fg-muted">SYS.VER.2.0</span>
-        </div>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-6">
-          {navItems.map((item) => (
-            <Link key={item.path} href={item.path}>
-              <a
-                className={cn(
-                  "text-[10px] tracking-widest hover:text-fg-primary transition-colors",
-                  location === item.path ? "text-fg-primary border-b border-accent-main" : "text-fg-secondary"
-                )}
-              >
-                {item.label}
-              </a>
+    <div className="min-h-screen bg-mesh flex flex-col">
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+        <div className="max-w-6xl mx-auto">
+          <nav className="glass-dark rounded-2xl shadow-soft px-4 py-3 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 group" data-testid="link-home">
+              <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+                <Sparkles size={16} className="text-white" />
+              </div>
+              <span className="text-lg font-bold text-foreground">YouRise</span>
             </Link>
-          ))}
-          <div className="h-3 w-px bg-border-main mx-2"></div>
-          <Link href="/dashboard">
-            <a className="text-[10px] text-accent-main hover:text-fg-primary uppercase tracking-widest">
-              [INITIATE]
-            </a>
-          </Link>
-        </nav>
 
-        {/* Mobile Nav Toggle */}
-        <button
-          className="md:hidden text-fg-secondary hover:text-fg-primary"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={14} /> : <Menu size={14} />}
-        </button>
+            <div className="hidden md:flex items-center gap-2">
+              {navItems.map((item) => (
+                <Link 
+                  key={item.path} 
+                  href={item.path}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                    location === item.path 
+                      ? "bg-primary/10 text-primary" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                  data-testid={`link-nav-${item.label.toLowerCase()}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="w-px h-6 bg-border mx-2" />
+              <Link href="/auth" data-testid="button-get-started">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="gradient-primary text-white px-5 py-2 rounded-full text-sm font-medium shadow-glow transition-shadow hover:shadow-lg"
+                >
+                  Get Started
+                </motion.button>
+              </Link>
+            </div>
+
+            <button
+              className="md:hidden p-2 rounded-lg hover:bg-secondary transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              data-testid="button-mobile-menu"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </nav>
+        </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="fixed top-10 left-0 right-0 z-40 bg-bg-main border-b border-border-main px-4 py-4 md:hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed top-20 left-4 right-4 z-40 glass-dark rounded-2xl shadow-card p-4 md:hidden"
           >
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
-                <Link key={item.path} href={item.path}>
-                  <a
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[10px] text-fg-secondary py-2 border-b border-border-dim hover:text-fg-primary tracking-widest"
-                  >
-                    {item.label}
-                  </a>
+                <Link 
+                  key={item.path} 
+                  href={item.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "px-4 py-3 rounded-xl text-base font-medium transition-colors",
+                    location === item.path 
+                      ? "bg-primary/10 text-primary" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                >
+                  {item.label}
                 </Link>
               ))}
+              <Link 
+                href="/auth" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full gradient-primary text-white px-4 py-3 rounded-xl text-base font-medium mt-2 block text-center"
+              >
+                Get Started
+              </Link>
             </nav>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* MAIN CONTENT - Grid Background */}
-      <main className="flex-1 pt-10 w-full min-h-screen">
+      <main className="flex-1 pt-24">
         {children}
       </main>
 
-      {/* FOOTER - Minimal Technical Footer */}
-      <footer className="border-t border-border-main bg-bg-main py-4 px-4 flex justify-between items-center text-[9px] uppercase tracking-wider text-fg-muted">
-        <div>
-           YOU RISE SYSTEM © {new Date().getFullYear()}
-        </div>
-        <div className="flex gap-4">
-          <span>STATUS: ONLINE</span>
-          <span>LATENCY: 12ms</span>
+      <footer className="border-t border-border bg-white/50 py-8 px-4">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg gradient-primary flex items-center justify-center">
+              <Sparkles size={12} className="text-white" />
+            </div>
+            <span className="text-sm font-semibold text-foreground">YouRise</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Grow your audience, one unlock at a time.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} YouRise. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>
