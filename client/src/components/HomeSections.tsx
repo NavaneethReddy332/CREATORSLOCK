@@ -137,9 +137,9 @@ export function Hero() {
           </div>
 
           <div className="font-mono text-[10px] text-gray-600 space-y-2 hidden md:block">
-            <p className="text-blue-500">>> SYSTEM READY</p>
-            <p>>> LISTENING ON PORT 443...</p>
-            <p>>> WAITING FOR INPUT...</p>
+            <p className="text-blue-500">&gt;&gt; SYSTEM READY</p>
+            <p>&gt;&gt; LISTENING ON PORT 443...</p>
+            <p>&gt;&gt; WAITING FOR INPUT...</p>
             <div className="h-32 border-l border-dotted border-gray-800 ml-1 mt-4"></div>
           </div>
         </div>
