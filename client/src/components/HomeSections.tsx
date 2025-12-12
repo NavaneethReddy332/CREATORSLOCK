@@ -24,12 +24,12 @@ export function Hero() {
         </div>
 
         <div className="flex flex-col gap-2 w-full md:w-auto">
-          <Link href="/dashboard">
+          <Link href="/auth">
             <motion.button
               whileHover={{ backgroundColor: "hsl(var(--accent-main))", color: "hsl(var(--fg-primary))" }}
               className="bg-accent-dim text-accent-main border border-accent-main/50 px-6 py-3 text-[10px] uppercase tracking-widest w-full text-center hover:border-accent-main transition-colors"
             >
-              Start Sequence
+              Get Started
             </motion.button>
           </Link>
           <div className="flex justify-between items-center text-[9px] text-fg-muted px-1">

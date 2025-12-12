@@ -7,11 +7,13 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import DashboardPage from "@/pages/DashboardPage";
 import UnlockPage from "@/pages/UnlockPage";
+import AuthPage from "@/pages/AuthPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/unlock/:id" component={UnlockPage} />
       <Route component={NotFound} />
