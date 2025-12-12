@@ -86,7 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
 
       {/* MAIN CONTENT - Grid Background */}
-      <main className="flex-1 pt-10 w-full grid-bg min-h-screen">
+      <main className="flex-1 pt-10 w-full min-h-screen">
         {children}
       </main>
 
