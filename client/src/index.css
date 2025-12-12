@@ -8,80 +8,70 @@
   --font-mono: 'JetBrains Mono', monospace;
   
   --radius-sm: 0px;
-  --radius-md: 2px;
-  --radius-lg: 4px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
   
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  /* SEMANTIC COLOR MAPPING - STRICT */
+  --color-bg-main: hsl(var(--bg-main));
+  --color-bg-panel: hsl(var(--bg-panel));
   
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
+  --color-fg-primary: hsl(var(--fg-primary));
+  --color-fg-secondary: hsl(var(--fg-secondary));
+  --color-fg-muted: hsl(var(--fg-muted));
   
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-accent-main: hsl(var(--accent-main));
+  --color-accent-dim: hsl(var(--accent-dim));
   
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-border-main: hsl(var(--border-main));
+  --color-border-dim: hsl(var(--border-dim));
   
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  /* STANDARD TAILWIND MAPPINGS TO SEMANTIC VARS */
+  --color-background: var(--color-bg-main);
+  --color-foreground: var(--color-fg-primary);
   
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-card: var(--color-bg-panel);
+  --color-card-foreground: var(--color-fg-primary);
   
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-popover: var(--color-bg-panel);
+  --color-popover-foreground: var(--color-fg-primary);
   
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-primary: var(--color-accent-main);
+  --color-primary-foreground: var(--color-fg-primary);
   
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
+  --color-secondary: var(--color-bg-panel);
+  --color-secondary-foreground: var(--color-fg-primary);
+  
+  --color-muted: var(--color-bg-panel);
+  --color-muted-foreground: var(--color-fg-muted);
+  
+  --color-accent: var(--color-bg-panel);
+  --color-accent-foreground: var(--color-fg-primary);
+  
+  --color-destructive: var(--color-bg-panel);
+  --color-destructive-foreground: var(--color-fg-primary);
+  
+  --color-border: var(--color-border-main);
+  --color-input: var(--color-border-main);
+  --color-ring: var(--color-accent-main);
 }
 
-/* COMPACT TECHNICAL THEME */
+/* COMPACT TECHNICAL THEME - VARIABLES */
 :root {
-  /* Colors - STRICT BLACK/GREY/BLUE */
-  --pure-black: 0 0% 0%;
-  --pure-white: 0 0% 100%;
-  --blue-tech: 221 83% 53%; 
+  /* RAW HSL VALUES for Tailwind opacity modifiers */
+  --bg-main: 0 0% 0%;       /* #000000 */
+  --bg-panel: 222 47% 11%;  /* Very Dark Grey/Blue */
   
-  --grey-900: 220 13% 18%;
-  --grey-800: 220 13% 25%;
-  --grey-500: 220 13% 50%;
-  --grey-300: 220 13% 70%;
-
-  /* Theme Mapping */
-  --background: var(--pure-black);
-  --foreground: var(--grey-300);
-
-  --card: var(--pure-black);
-  --card-foreground: var(--grey-300);
-
-  --popover: var(--pure-black);
-  --popover-foreground: var(--grey-300);
-
-  --primary: var(--blue-tech);
-  --primary-foreground: var(--pure-white);
-
-  --secondary: var(--grey-900);
-  --secondary-foreground: var(--grey-300);
-
-  --muted: var(--grey-900);
-  --muted-foreground: var(--grey-500);
-
-  --accent: var(--grey-900);
-  --accent-foreground: var(--pure-white);
-
-  --destructive: var(--grey-900);
-  --destructive-foreground: var(--pure-white);
-
-  --border: var(--grey-800);
-  --input: var(--grey-800);
-  --ring: var(--blue-tech);
-
-  --radius: 0px; /* SHARP CORNERS */
+  --fg-primary: 0 0% 100%;  /* #FFFFFF */
+  --fg-secondary: 220 13% 70%; /* Grey 300 */
+  --fg-muted: 220 13% 40%;    /* Grey 600 */
+  
+  --accent-main: 221 83% 53%; /* Blue Tech */
+  --accent-dim: 218 80% 20%;  /* Dark Blue */
+  
+  --border-main: 220 13% 25%; /* Grey 800 */
+  --border-dim: 220 13% 15%;  /* Grey 900 */
+  
+  --radius: 0px; 
 }
 
 @layer base {
@@ -98,7 +88,7 @@
     @apply font-mono uppercase tracking-wider text-[10px];
   }
   input, textarea, select {
-    @apply font-mono text-[11px];
+    @apply font-mono text-[11px] bg-background border-border text-foreground;
   }
 }
 
@@ -119,7 +109,7 @@
 
   .grid-bg {
     background-size: 20px 20px;
-    background-image: linear-gradient(to right, #111 1px, transparent 1px),
-                      linear-gradient(to bottom, #111 1px, transparent 1px);
+    background-image: linear-gradient(to right, hsl(var(--border-dim)) 1px, transparent 1px),
+                      linear-gradient(to bottom, hsl(var(--border-dim)) 1px, transparent 1px);
   }
 }

@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Check, Lock, Unlock, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
+import { Check, Lock, Unlock, ArrowRight, Terminal } from "lucide-react";
 
 export default function UnlockPage() {
   const [tasks, setTasks] = useState([
@@ -17,22 +16,22 @@ export default function UnlockPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black font-mono flex items-center justify-center p-4">
+    <div className="min-h-screen bg-bg-main font-mono flex items-center justify-center p-4">
       
-      <div className="w-full max-w-[320px] border border-gray-800 bg-black relative">
+      <div className="w-full max-w-[320px] border border-border-main bg-bg-main relative">
         {/* CORNER MARKERS */}
-        <div className="absolute -top-px -left-px w-2 h-2 border-t border-l border-blue-600"></div>
-        <div className="absolute -top-px -right-px w-2 h-2 border-t border-r border-blue-600"></div>
-        <div className="absolute -bottom-px -left-px w-2 h-2 border-b border-l border-blue-600"></div>
-        <div className="absolute -bottom-px -right-px w-2 h-2 border-b border-r border-blue-600"></div>
+        <div className="absolute -top-px -left-px w-2 h-2 border-t border-l border-accent-main"></div>
+        <div className="absolute -top-px -right-px w-2 h-2 border-t border-r border-accent-main"></div>
+        <div className="absolute -bottom-px -left-px w-2 h-2 border-b border-l border-accent-main"></div>
+        <div className="absolute -bottom-px -right-px w-2 h-2 border-b border-r border-accent-main"></div>
 
         {/* HEADER */}
-        <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/10">
+        <div className="p-4 border-b border-border-main flex justify-between items-center bg-border-dim">
           <div className="flex items-center gap-2">
-            <Terminal size={12} className="text-blue-500" />
-            <span className="text-[10px] text-white uppercase tracking-widest">SECURE.GATE</span>
+            <Terminal size={12} className="text-accent-main" />
+            <span className="text-[10px] text-fg-primary uppercase tracking-widest">SECURE.GATE</span>
           </div>
-          <div className={`w-2 h-2 rounded-full ${allDone ? 'bg-blue-600' : 'bg-gray-800'}`}></div>
+          <div className={`w-2 h-2 rounded-full ${allDone ? 'bg-accent-main' : 'bg-border-main'}`}></div>
         </div>
 
         {/* CONTENT */}
@@ -41,12 +40,12 @@ export default function UnlockPage() {
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
               {allDone ? (
-                <Unlock size={24} className="text-blue-500" />
+                <Unlock size={24} className="text-accent-main" />
               ) : (
-                <Lock size={24} className="text-gray-600" />
+                <Lock size={24} className="text-fg-muted" />
               )}
             </div>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest">
+            <p className="text-[10px] text-fg-secondary uppercase tracking-widest">
               Auth Required
             </p>
           </div>
@@ -59,8 +58,8 @@ export default function UnlockPage() {
                 disabled={task.done}
                 className={`w-full p-3 border text-[10px] uppercase tracking-wider flex items-center justify-between transition-all group ${
                   task.done 
-                    ? 'border-blue-900/50 bg-blue-900/10 text-blue-400' 
-                    : 'border-gray-800 bg-black text-gray-500 hover:border-gray-600 hover:text-white'
+                    ? 'border-accent-main/50 bg-accent-dim text-accent-main' 
+                    : 'border-border-main bg-bg-main text-fg-secondary hover:border-fg-muted hover:text-fg-primary'
                 }`}
               >
                 <span>{task.label}</span>
@@ -77,8 +76,8 @@ export default function UnlockPage() {
             disabled={!allDone}
             className={`w-full py-3 text-[10px] uppercase font-bold tracking-widest transition-all ${
               allDone 
-                ? 'bg-blue-600 text-white hover:bg-blue-500' 
-                : 'bg-gray-900 text-gray-600 cursor-not-allowed'
+                ? 'bg-accent-main text-fg-primary hover:bg-accent-main/80' 
+                : 'bg-border-dim text-fg-muted cursor-not-allowed'
             }`}
           >
             {allDone ? "ACCESS GRANTED" : "AWAITING AUTH"}
@@ -87,8 +86,8 @@ export default function UnlockPage() {
         </div>
 
         {/* FOOTER */}
-        <div className="p-2 border-t border-gray-800 flex justify-center">
-          <span className="text-[8px] text-gray-700 uppercase">Encrypted by YOU RISE</span>
+        <div className="p-2 border-t border-border-main flex justify-center">
+          <span className="text-[8px] text-fg-muted uppercase">Encrypted by YOU RISE</span>
         </div>
 
       </div>

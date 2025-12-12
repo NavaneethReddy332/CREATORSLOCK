@@ -16,17 +16,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-gray-400 font-mono flex flex-col selection:bg-blue-900 selection:text-white">
+    <div className="min-h-screen bg-bg-main text-fg-secondary font-mono flex flex-col selection:bg-accent-main selection:text-fg-primary">
       {/* HEADER - Compact & Technical */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-gray-800 h-10 flex items-center justify-between px-4">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-bg-main border-b border-border-main h-10 flex items-center justify-between px-4">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <a className="text-[10px] font-bold tracking-widest text-blue-500 uppercase hover:text-white transition-colors">
+            <a className="text-[10px] font-bold tracking-widest text-accent-main uppercase hover:text-fg-primary transition-colors">
               YOU RISE
             </a>
           </Link>
-          <div className="h-3 w-px bg-gray-800"></div>
-          <span className="text-[9px] text-gray-600">SYS.VER.2.0</span>
+          <div className="h-3 w-px bg-border-main"></div>
+          <span className="text-[9px] text-fg-muted">SYS.VER.2.0</span>
         </div>
 
         {/* Desktop Nav */}
@@ -35,17 +35,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link key={item.path} href={item.path}>
               <a
                 className={cn(
-                  "text-[10px] tracking-widest hover:text-white transition-colors",
-                  location === item.path ? "text-white border-b border-blue-600" : "text-gray-600"
+                  "text-[10px] tracking-widest hover:text-fg-primary transition-colors",
+                  location === item.path ? "text-fg-primary border-b border-accent-main" : "text-fg-secondary"
                 )}
               >
                 {item.label}
               </a>
             </Link>
           ))}
-          <div className="h-3 w-px bg-gray-800 mx-2"></div>
+          <div className="h-3 w-px bg-border-main mx-2"></div>
           <Link href="/dashboard">
-            <a className="text-[10px] text-blue-500 hover:text-white uppercase tracking-widest">
+            <a className="text-[10px] text-accent-main hover:text-fg-primary uppercase tracking-widest">
               [INITIATE]
             </a>
           </Link>
@@ -53,7 +53,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Nav Toggle */}
         <button
-          className="md:hidden text-gray-500 hover:text-white"
+          className="md:hidden text-fg-secondary hover:text-fg-primary"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={14} /> : <Menu size={14} />}
@@ -67,14 +67,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="fixed top-10 left-0 right-0 z-40 bg-black border-b border-gray-800 px-4 py-4 md:hidden"
+            className="fixed top-10 left-0 right-0 z-40 bg-bg-main border-b border-border-main px-4 py-4 md:hidden"
           >
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
                   <a
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-[10px] text-gray-400 py-2 border-b border-gray-900 hover:text-white tracking-widest"
+                    className="text-[10px] text-fg-secondary py-2 border-b border-border-dim hover:text-fg-primary tracking-widest"
                   >
                     {item.label}
                   </a>
@@ -91,7 +91,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* FOOTER - Minimal Technical Footer */}
-      <footer className="border-t border-gray-800 bg-black py-4 px-4 flex justify-between items-center text-[9px] uppercase tracking-wider text-gray-700">
+      <footer className="border-t border-border-main bg-bg-main py-4 px-4 flex justify-between items-center text-[9px] uppercase tracking-wider text-fg-muted">
         <div>
            YOU RISE SYSTEM © {new Date().getFullYear()}
         </div>
