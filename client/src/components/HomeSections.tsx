@@ -107,44 +107,6 @@ export function Hero() {
 
       </section>
 
-      {/* SECTION 4: CONTACT / TERMINAL */}
-      <section id="contact" className="border-t border-border-main p-8 md:p-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div>
-             <h2 className="text-fg-primary text-sm mb-6 flex items-center gap-2">
-               <span className="w-2 h-2 bg-accent-main"></span>
-               TRANSMISSION UPLINK
-             </h2>
-             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-               <div className="grid grid-cols-2 gap-4">
-                 <div className="space-y-1">
-                   <label className="text-[9px] text-fg-muted uppercase">Identity</label>
-                   <input type="text" className="w-full bg-bg-main border border-border-main px-3 py-2 text-fg-primary focus:border-accent-main focus:outline-none transition-colors" />
-                 </div>
-                 <div className="space-y-1">
-                   <label className="text-[9px] text-fg-muted uppercase">Frequency</label>
-                   <input type="email" className="w-full bg-bg-main border border-border-main px-3 py-2 text-fg-primary focus:border-accent-main focus:outline-none transition-colors" />
-                 </div>
-               </div>
-               <div className="space-y-1">
-                 <label className="text-[9px] text-fg-muted uppercase">Payload</label>
-                 <textarea rows={3} className="w-full bg-bg-main border border-border-main px-3 py-2 text-fg-primary focus:border-accent-main focus:outline-none transition-colors"></textarea>
-               </div>
-               <button className="bg-fg-primary text-bg-main px-6 py-2 text-[10px] uppercase font-bold hover:bg-accent-main hover:text-fg-primary transition-colors w-full md:w-auto">
-                 Transmit
-               </button>
-             </form>
-          </div>
-
-          <div className="font-mono text-[10px] text-fg-muted space-y-2 hidden md:block">
-            <p className="text-accent-main">&gt;&gt; SYSTEM READY</p>
-            <p>&gt;&gt; LISTENING ON PORT 443...</p>
-            <p>&gt;&gt; WAITING FOR INPUT...</p>
-            <div className="h-32 border-l border-dotted border-border-main ml-1 mt-4"></div>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }
