@@ -40,36 +40,49 @@
   --color-ring: hsl(var(--ring));
 }
 
-/* DARK MODE THEME */
+/* STRICT PALETTE: PURE BLACK, GREY, BLUE ONLY */
 :root {
-  /* Slate / Dark Blue Tone */
-  --background: 222 47% 11%;  /* Slate 950 */
-  --foreground: 210 40% 98%;  /* Slate 50 */
+  /* Colors */
+  --pure-black: 0 0% 0%;
+  --pure-white: 0 0% 100%;
+  --blue-vibrant: 221 83% 53%; /* Blue 600 */
+  
+  /* Greys */
+  --grey-950: 222 47% 11%; /* Actually slate-950, very dark grey/blue */
+  --grey-900: 215 28% 17%;
+  --grey-800: 217 33% 17%;
+  --grey-700: 215 25% 27%;
+  --grey-400: 215 20% 65%;
+  --grey-100: 210 40% 96.1%;
 
-  --card: 217 33% 17%;        /* Slate 900 */
-  --card-foreground: 210 40% 98%;
+  /* Theme Mapping */
+  --background: var(--pure-black);
+  --foreground: var(--pure-white);
 
-  --popover: 217 33% 17%;
-  --popover-foreground: 210 40% 98%;
+  --card: var(--pure-black);
+  --card-foreground: var(--pure-white);
 
-  --primary: 217 91% 60%;     /* Blue 500 - brighter for dark mode */
-  --primary-foreground: 222 47% 11%;
+  --popover: var(--pure-black);
+  --popover-foreground: var(--pure-white);
 
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
+  --primary: var(--blue-vibrant);
+  --primary-foreground: var(--pure-white);
 
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
+  --secondary: var(--grey-900);
+  --secondary-foreground: var(--pure-white);
 
-  --accent: 217 33% 17%;
-  --accent-foreground: 210 40% 98%;
+  --muted: var(--grey-900);
+  --muted-foreground: var(--grey-400);
 
-  --destructive: 0 62% 30%;
-  --destructive-foreground: 210 40% 98%;
+  --accent: var(--grey-900);
+  --accent-foreground: var(--pure-white);
 
-  --border: 217 33% 22%;      /* Slate 800 */
-  --input: 217 33% 22%;
-  --ring: 224 76% 48%;
+  --destructive: var(--grey-900);
+  --destructive-foreground: var(--pure-white);
+
+  --border: var(--grey-800);
+  --input: var(--grey-800);
+  --ring: var(--blue-vibrant);
 
   --radius: 0.5rem;
 }

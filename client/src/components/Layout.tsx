@@ -16,12 +16,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
+    <div className="min-h-screen bg-black text-white font-sans flex flex-col selection:bg-blue-600 selection:text-white">
       {/* HEADER */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border h-16 flex items-center justify-between px-6 md:px-12 transition-all">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-gray-800 h-16 flex items-center justify-between px-6 md:px-12 transition-all">
         <Link href="/">
-          <a className="flex items-center gap-2 font-bold text-lg tracking-tight hover:opacity-80 transition-opacity text-primary">
-            <div className="bg-primary text-primary-foreground p-1 rounded-md">
+          <a className="flex items-center gap-2 font-bold text-lg tracking-tight hover:opacity-80 transition-opacity text-white">
+            <div className="bg-blue-600 text-white p-1 rounded-md">
               <Lock size={16} strokeWidth={3} />
             </div>
             <span>CreatorLock</span>
@@ -34,8 +34,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link key={item.path} href={item.path}>
               <a
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  location === item.path ? "text-primary font-semibold" : "text-muted-foreground"
+                  "text-sm font-medium transition-colors hover:text-white",
+                  location === item.path ? "text-blue-500 font-semibold" : "text-gray-400"
                 )}
               >
                 {item.label}
@@ -43,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
           <Link href="/dashboard">
-            <a className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:brightness-110 transition-all shadow-sm hover:shadow-primary/20">
+            <a className="bg-white text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition-all">
               Get Started
             </a>
           </Link>
@@ -51,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Nav Toggle */}
         <button
-          className="md:hidden text-muted-foreground hover:text-primary"
+          className="md:hidden text-gray-400 hover:text-white"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -65,21 +65,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-0 z-40 bg-background pt-24 px-6 md:hidden border-b border-border"
+            className="fixed inset-0 z-40 bg-black pt-24 px-6 md:hidden border-b border-gray-800"
           >
             <nav className="flex flex-col gap-4">
               {navItems.map((item) => (
                 <Link key={item.path} href={item.path}>
                   <a
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-xl font-medium text-foreground py-3 border-b border-border"
+                    className="text-xl font-medium text-white py-3 border-b border-gray-800"
                   >
                     {item.label}
                   </a>
                 </Link>
               ))}
               <Link href="/dashboard">
-                <a onClick={() => setIsMobileMenuOpen(false)} className="bg-primary text-primary-foreground text-center py-3 rounded-lg font-medium mt-4">
+                <a onClick={() => setIsMobileMenuOpen(false)} className="bg-blue-600 text-white text-center py-3 rounded-lg font-medium mt-4">
                   Get Started
                 </a>
               </Link>
@@ -94,20 +94,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-border py-12 mt-24 bg-background">
+      <footer className="border-t border-gray-800 py-12 mt-24 bg-black">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 font-bold text-foreground">
-             <div className="bg-foreground text-background p-1 rounded-md">
+          <div className="flex items-center gap-2 font-bold text-white">
+             <div className="bg-white text-black p-1 rounded-md">
               <Lock size={14} strokeWidth={3} />
             </div>
             <span className="text-sm">CreatorLock</span>
           </div>
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Creator Lock. Simple, Secure, Effective.
+          <p className="text-sm text-gray-500">
+            © {new Date().getFullYear()} Creator Lock.
           </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms</a>
+          <div className="flex gap-6 text-sm text-gray-500">
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
           </div>
         </div>
       </footer>
