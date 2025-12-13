@@ -94,6 +94,12 @@ Tables are automatically created on server startup via `server/init-db.ts`. This
 
 ## Recent Changes
 
+### December 13, 2025
+- Fixed API serialization: Added serializeUser() and serializeConnection() helper functions to convert snake_case database fields to camelCase for frontend compatibility
+- Updated User interface in auth.tsx to include all profile fields (displayName, profileImage, bannerColor, accentColor, audienceMessage)
+- Fixed Account page responsiveness: Profile section now stacks on mobile and displays side-by-side on larger screens
+- Completed project import and verified all functionality
+
 ### December 2024
 - Migrated from PostgreSQL to Turso (libSQL) database
 - Updated schema from pg-core to sqlite-core
