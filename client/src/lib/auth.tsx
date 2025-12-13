@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
     setUser(data.user);
-    setLocation("/account");
+    setLocation("/dashboard");
   };
 
   const register = async (username: string, email: string, password: string) => {
