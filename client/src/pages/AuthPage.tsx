@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { ArrowRight, Sparkles, Mail, Lock, User } from "lucide-react";
+import { ArrowRight, ArrowLeft, Sparkles, Mail, Lock, User } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
 export default function AuthPage() {
@@ -34,6 +34,13 @@ export default function AuthPage() {
       <div className="w-full max-w-sm">
         <div className="bg-card border border-border rounded overflow-hidden">
           <div className="p-5">
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors"
+            >
+              <ArrowLeft size={14} />
+              Back to Home
+            </Link>
             <div className="text-center mb-5">
               <Link href="/" className="inline-flex items-center gap-1.5 mb-4">
                 <div className="w-6 h-6 rounded bg-primary flex items-center justify-center">
