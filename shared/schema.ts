@@ -1,19 +1,19 @@
-import { pgTable, text, serial, timestamp, varchar, boolean, integer } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: varchar("username", { length: 255 }).notNull().unique(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  displayName: varchar("display_name", { length: 255 }),
+  displayName: text("display_name"),
   profileImage: text("profile_image"),
-  bannerColor: varchar("banner_color", { length: 7 }).default("#6366f1"),
-  accentColor: varchar("accent_color", { length: 7 }).default("#8b5cf6"),
+  bannerColor: text("banner_color").default("#6366f1"),
+  accentColor: text("accent_color").default("#8b5cf6"),
   audienceMessage: text("audience_message"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -28,12 +28,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-export const connections = pgTable("connections", {
-  id: serial("id").primaryKey(),
+export const connections = sqliteTable("connections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  platform: varchar("platform", { length: 100 }).notNull(),
+  platform: text("platform").notNull(),
   url: text("url").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const connectionsRelations = relations(connections, ({ one }) => ({
@@ -50,15 +50,15 @@ export const insertConnectionSchema = createInsertSchema(connections).omit({
 export type InsertConnection = z.infer<typeof insertConnectionSchema>;
 export type Connection = typeof connections.$inferSelect;
 
-export const lockedLinks = pgTable("locked_links", {
-  id: serial("id").primaryKey(),
+export const lockedLinks = sqliteTable("locked_links", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   targetUrl: text("target_url").notNull(),
-  unlockCode: varchar("unlock_code", { length: 255 }).notNull().unique(),
+  unlockCode: text("unlock_code").notNull().unique(),
   requiredActions: text("required_actions").notNull(),
-  expiresAt: timestamp("expires_at"),
+  expiresAt: text("expires_at"),
   customUnlockMessage: text("custom_unlock_message"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const lockedLinksRelations = relations(lockedLinks, ({ one, many }) => ({
@@ -76,13 +76,13 @@ export const insertLockedLinkSchema = createInsertSchema(lockedLinks).omit({
 export type InsertLockedLink = z.infer<typeof insertLockedLinkSchema>;
 export type LockedLink = typeof lockedLinks.$inferSelect;
 
-export const unlockAttempts = pgTable("unlock_attempts", {
-  id: serial("id").primaryKey(),
+export const unlockAttempts = sqliteTable("unlock_attempts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   linkId: integer("link_id").notNull().references(() => lockedLinks.id, { onDelete: "cascade" }),
   completedActions: text("completed_actions").notNull().default("[]"),
-  unlocked: boolean("unlocked").default(false).notNull(),
-  unlockedAt: timestamp("unlocked_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  unlocked: integer("unlocked", { mode: "boolean" }).default(false).notNull(),
+  unlockedAt: text("unlocked_at"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const unlockAttemptsRelations = relations(unlockAttempts, ({ one }) => ({
