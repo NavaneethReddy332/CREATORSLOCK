@@ -5,6 +5,11 @@ interface User {
   id: number;
   username: string;
   email: string;
+  displayName: string | null;
+  profileImage: string | null;
+  bannerColor: string | null;
+  accentColor: string | null;
+  audienceMessage: string | null;
   createdAt: string;
 }
 

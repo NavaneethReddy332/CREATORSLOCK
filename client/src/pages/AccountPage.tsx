@@ -252,8 +252,10 @@ function ProfileSection() {
         </motion.button>
       </div>
       
-      <div className="flex gap-8">
-        <ProfilePreviewCard data={formData} username={user?.username || ""} />
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="mx-auto lg:mx-0">
+          <ProfilePreviewCard data={formData} username={user?.username || ""} />
+        </div>
         
         <div className="flex-1 space-y-5">
           <div>

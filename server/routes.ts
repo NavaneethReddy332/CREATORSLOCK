@@ -5,6 +5,33 @@ import { insertUserSchema, insertConnectionSchema, insertLockedLinkSchema } from
 import { ZodError, z } from "zod";
 import bcrypt from "bcryptjs";
 
+function serializeUser(user: any) {
+  if (!user) return null;
+  const { password, ...rest } = user;
+  return {
+    id: rest.id,
+    username: rest.username,
+    email: rest.email,
+    displayName: rest.display_name ?? rest.displayName ?? null,
+    profileImage: rest.profile_image ?? rest.profileImage ?? null,
+    bannerColor: rest.banner_color ?? rest.bannerColor ?? "#6366f1",
+    accentColor: rest.accent_color ?? rest.accentColor ?? "#8b5cf6",
+    audienceMessage: rest.audience_message ?? rest.audienceMessage ?? null,
+    createdAt: rest.created_at ?? rest.createdAt,
+  };
+}
+
+function serializeConnection(connection: any) {
+  if (!connection) return null;
+  return {
+    id: connection.id,
+    userId: connection.user_id ?? connection.userId,
+    platform: connection.platform,
+    url: connection.url,
+    createdAt: connection.created_at ?? connection.createdAt,
+  };
+}
+
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -64,8 +91,7 @@ export async function registerRoutes(
       });
 
       req.session.userId = user.id;
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword });
+      res.json({ user: serializeUser(user) });
     } catch (error) {
       if (error instanceof ZodError) {
         return res.status(400).json({ error: error.errors[0]?.message || "Validation error" });
@@ -90,8 +116,7 @@ export async function registerRoutes(
       }
 
       req.session.userId = user.id;
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword });
+      res.json({ user: serializeUser(user) });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -118,8 +143,7 @@ export async function registerRoutes(
       return res.json({ user: null });
     }
 
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({ user: userWithoutPassword });
+    res.json({ user: serializeUser(user) });
   });
 
   app.get("/api/account/profile", requireAuth, async (req, res) => {
@@ -127,8 +151,7 @@ export async function registerRoutes(
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({ user: userWithoutPassword });
+    res.json({ user: serializeUser(user) });
   });
 
   app.put("/api/account/profile", requireAuth, async (req, res) => {
@@ -159,8 +182,7 @@ export async function registerRoutes(
         return res.status(404).json({ error: "User not found" });
       }
 
-      const { password: _, ...userWithoutPassword } = user;
-      res.json({ user: userWithoutPassword });
+      res.json({ user: serializeUser(user) });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -227,7 +249,7 @@ export async function registerRoutes(
   app.get("/api/connections", requireAuth, async (req, res) => {
     try {
       const connections = await storage.getUserConnections(req.session.userId!);
-      res.json({ connections });
+      res.json({ connections: connections.map(serializeConnection) });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -248,7 +270,7 @@ export async function registerRoutes(
         platform,
         url,
       });
-      res.json({ connection });
+      res.json({ connection: serializeConnection(connection) });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
@@ -267,7 +289,7 @@ export async function registerRoutes(
 
       const platform = detectPlatform(url);
       const connection = await storage.updateConnection(id, { url, platform });
-      res.json({ connection });
+      res.json({ connection: serializeConnection(connection) });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
