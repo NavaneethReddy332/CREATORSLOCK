@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { useAuth, RequireAuth } from "@/lib/auth";
-import { User, Link2, Shield, AlertTriangle, Plus, Trash2, Edit2, Check, X, Youtube, Instagram, Twitter, Facebook, Twitch, Github, Linkedin, Globe } from "lucide-react";
+import { User, Link2, Shield, AlertTriangle, Plus, Trash2, Edit2, Check, X, Youtube, Instagram, Twitter, Facebook, Twitch, Github, Linkedin, Globe, ExternalLink } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Connection {
@@ -11,8 +11,10 @@ interface Connection {
   createdAt: string;
 }
 
+type TabType = "profile" | "connections" | "security" | "danger";
+
 function getPlatformIcon(platform: string) {
-  const size = 14;
+  const size = 16;
   switch (platform) {
     case "YouTube": return <Youtube size={size} className="text-red-400" />;
     case "Instagram": return <Instagram size={size} className="text-pink-400" />;
@@ -25,14 +27,60 @@ function getPlatformIcon(platform: string) {
   }
 }
 
+function SidebarNav({ activeTab, setActiveTab }: { activeTab: TabType; setActiveTab: (tab: TabType) => void }) {
+  const tabs = [
+    { id: "profile" as TabType, label: "Profile", icon: User },
+    { id: "connections" as TabType, label: "Connections", icon: Link2 },
+    { id: "security" as TabType, label: "Security", icon: Shield },
+    { id: "danger" as TabType, label: "Danger Zone", icon: AlertTriangle },
+  ];
+
+  return (
+    <nav className="w-48 flex-shrink-0">
+      <div className="flex items-center gap-2 mb-4 px-3">
+        <User size={18} className="text-primary" />
+        <h1 className="text-base font-medium text-foreground">Account</h1>
+      </div>
+      <div className="space-y-1">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          const isDanger = tab.id === "danger";
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                isActive 
+                  ? isDanger 
+                    ? "bg-destructive/10 text-destructive border-l-2 border-destructive" 
+                    : "bg-primary/10 text-primary border-l-2 border-primary"
+                  : isDanger
+                    ? "text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+              }`}
+              data-testid={`tab-${tab.id}`}
+            >
+              <Icon size={14} className={isDanger && isActive ? "text-destructive" : ""} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 function ProfileSection() {
   const { user, refresh } = useAuth();
-  const [editing, setEditing] = useState(false);
+  const [editingUsername, setEditingUsername] = useState(false);
+  const [editingEmail, setEditingEmail] = useState(false);
   const [username, setUsername] = useState(user?.username || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const handleSave = async () => {
+  const handleSaveUsername = async () => {
     setSaving(true);
     setError("");
     try {
@@ -44,7 +92,7 @@ function ProfileSection() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       await refresh();
-      setEditing(false);
+      setEditingUsername(false);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -53,53 +101,81 @@ function ProfileSection() {
   };
 
   return (
-    <div className="bg-card border border-border rounded p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <User size={14} className="text-primary" />
-        <h2 className="text-sm font-medium">Profile</h2>
-      </div>
+    <div className="bg-card border border-border rounded-lg p-6">
+      <h2 className="text-base font-medium mb-6">Profile</h2>
       
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1">Username</label>
-          {editing ? (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="flex-1 px-2 py-1.5 rounded border border-border bg-secondary text-xs"
-                data-testid="input-username"
-              />
-              <button onClick={handleSave} disabled={saving} className="p-1.5 bg-primary text-white rounded" data-testid="button-save-username">
-                <Check size={12} />
-              </button>
-              <button onClick={() => { setEditing(false); setUsername(user?.username || ""); }} className="p-1.5 bg-secondary rounded">
-                <X size={12} />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-foreground">{user?.username}</span>
-              <button onClick={() => setEditing(true)} className="p-1 hover:bg-secondary rounded" data-testid="button-edit-username">
-                <Edit2 size={12} className="text-muted-foreground" />
-              </button>
-            </div>
+      <div className="space-y-5">
+        <div className="flex items-center justify-between py-2 border-b border-border/50">
+          <div className="flex items-center gap-8">
+            <span className="text-sm text-muted-foreground w-20">Username</span>
+            {editingUsername ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="px-3 py-1.5 rounded border border-border bg-secondary text-sm min-w-[200px]"
+                  data-testid="input-username"
+                  autoFocus
+                />
+                <button 
+                  onClick={handleSaveUsername} 
+                  disabled={saving} 
+                  className="p-1.5 bg-primary text-white rounded hover:bg-primary/90"
+                  data-testid="button-save-username"
+                >
+                  <Check size={14} />
+                </button>
+                <button 
+                  onClick={() => { setEditingUsername(false); setUsername(user?.username || ""); setError(""); }} 
+                  className="p-1.5 bg-secondary rounded hover:bg-secondary/80"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <span className="text-sm font-medium text-foreground">{user?.username}</span>
+            )}
+          </div>
+          {!editingUsername && (
+            <button 
+              onClick={() => setEditingUsername(true)} 
+              className="p-1.5 hover:bg-secondary rounded text-primary"
+              data-testid="button-edit-username"
+            >
+              <ExternalLink size={16} />
+            </button>
           )}
-          {error && <p className="text-xs text-destructive mt-1">{error}</p>}
         </div>
         
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1">Email</label>
-          <span className="text-xs text-foreground">{user?.email}</span>
+        <div className="flex items-center justify-between py-2 border-b border-border/50">
+          <div className="flex items-center gap-8">
+            <span className="text-sm text-muted-foreground w-20">Email</span>
+            <span className="text-sm font-medium text-foreground">{user?.email}</span>
+          </div>
+          <button 
+            className="p-1.5 hover:bg-secondary rounded text-primary opacity-50 cursor-not-allowed"
+            disabled
+            title="Email cannot be changed"
+          >
+            <ExternalLink size={16} />
+          </button>
         </div>
         
-        <div>
-          <label className="block text-xs text-muted-foreground mb-1">Joined</label>
-          <span className="text-xs text-foreground">
-            {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
-          </span>
+        <div className="flex items-center py-2">
+          <div className="flex items-center gap-8">
+            <span className="text-sm text-muted-foreground w-20">Joined</span>
+            <span className="text-sm font-medium text-foreground">
+              {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              }) : "-"}
+            </span>
+          </div>
         </div>
+
+        {error && <p className="text-xs text-destructive mt-2">{error}</p>}
       </div>
     </div>
   );
@@ -160,16 +236,16 @@ function ConnectionsSection() {
   });
 
   return (
-    <div className="bg-card border border-border rounded p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Link2 size={14} className="text-primary" />
-        <h2 className="text-sm font-medium">Connections</h2>
-      </div>
+    <div className="bg-card border border-border rounded-lg p-6">
+      <h2 className="text-base font-medium mb-6">Connections</h2>
 
-      <div className="space-y-2 mb-3">
-        {isLoading && <p className="text-xs text-muted-foreground">Loading...</p>}
+      <div className="space-y-3 mb-4">
+        {isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
+        {data?.connections?.length === 0 && !isLoading && (
+          <p className="text-sm text-muted-foreground">No connections added yet.</p>
+        )}
         {data?.connections?.map((conn) => (
-          <div key={conn.id} className="flex items-center gap-2 p-2 bg-secondary rounded">
+          <div key={conn.id} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border border-border/50">
             {getPlatformIcon(conn.platform)}
             {editingId === conn.id ? (
               <>
@@ -177,23 +253,35 @@ function ConnectionsSection() {
                   type="text"
                   value={editUrl}
                   onChange={(e) => setEditUrl(e.target.value)}
-                  className="flex-1 px-2 py-1 rounded border border-border bg-card text-xs"
+                  className="flex-1 px-3 py-1.5 rounded border border-border bg-card text-sm"
                 />
-                <button onClick={() => updateMutation.mutate({ id: conn.id, url: editUrl })} className="p-1 bg-primary text-white rounded">
-                  <Check size={10} />
+                <button 
+                  onClick={() => updateMutation.mutate({ id: conn.id, url: editUrl })} 
+                  className="p-1.5 bg-primary text-white rounded hover:bg-primary/90"
+                >
+                  <Check size={12} />
                 </button>
-                <button onClick={() => setEditingId(null)} className="p-1 bg-card rounded">
-                  <X size={10} />
+                <button 
+                  onClick={() => setEditingId(null)} 
+                  className="p-1.5 bg-card rounded border border-border hover:bg-secondary"
+                >
+                  <X size={12} />
                 </button>
               </>
             ) : (
               <>
-                <span className="flex-1 text-xs truncate">{conn.url}</span>
-                <button onClick={() => { setEditingId(conn.id); setEditUrl(conn.url); }} className="p-1 hover:bg-card rounded">
-                  <Edit2 size={10} className="text-muted-foreground" />
+                <span className="flex-1 text-sm truncate">{conn.url}</span>
+                <button 
+                  onClick={() => { setEditingId(conn.id); setEditUrl(conn.url); }} 
+                  className="p-1.5 hover:bg-card rounded"
+                >
+                  <Edit2 size={14} className="text-muted-foreground" />
                 </button>
-                <button onClick={() => deleteMutation.mutate(conn.id)} className="p-1 hover:bg-card rounded">
-                  <Trash2 size={10} className="text-destructive" />
+                <button 
+                  onClick={() => deleteMutation.mutate(conn.id)} 
+                  className="p-1.5 hover:bg-card rounded"
+                >
+                  <Trash2 size={14} className="text-destructive" />
                 </button>
               </>
             )}
@@ -207,16 +295,17 @@ function ConnectionsSection() {
           value={newUrl}
           onChange={(e) => setNewUrl(e.target.value)}
           placeholder="https://youtube.com/@channel"
-          className="flex-1 px-2 py-1.5 rounded border border-border bg-secondary text-xs placeholder:text-muted-foreground"
+          className="flex-1 px-3 py-2 rounded-lg border border-border bg-secondary text-sm placeholder:text-muted-foreground"
           data-testid="input-new-connection"
         />
         <button
           onClick={() => newUrl && addMutation.mutate(newUrl)}
           disabled={!newUrl || addMutation.isPending}
-          className="px-3 py-1.5 bg-primary text-white rounded text-xs font-medium disabled:opacity-50"
+          className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 flex items-center gap-2"
           data-testid="button-add-connection"
         >
-          <Plus size={12} />
+          <Plus size={14} />
+          Add
         </button>
       </div>
     </div>
@@ -253,39 +342,36 @@ function SecuritySection() {
   };
 
   return (
-    <div className="bg-card border border-border rounded p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Shield size={14} className="text-primary" />
-        <h2 className="text-sm font-medium">Security</h2>
-      </div>
+    <div className="bg-card border border-border rounded-lg p-6">
+      <h2 className="text-base font-medium mb-6">Security</h2>
 
-      <div className="space-y-3">
+      <div className="space-y-4 max-w-md">
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">Current Password</label>
+          <label className="block text-sm text-muted-foreground mb-2">Current Password</label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full px-2 py-1.5 rounded border border-border bg-secondary text-xs"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-secondary text-sm"
             data-testid="input-current-password"
           />
         </div>
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">New Password</label>
+          <label className="block text-sm text-muted-foreground mb-2">New Password</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-2 py-1.5 rounded border border-border bg-secondary text-xs"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-secondary text-sm"
             data-testid="input-new-password"
           />
         </div>
-        {error && <p className="text-xs text-destructive">{error}</p>}
-        {success && <p className="text-xs text-green-400">Password updated!</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+        {success && <p className="text-sm text-green-400">Password updated successfully!</p>}
         <button
           onClick={handleChange}
           disabled={!currentPassword || !newPassword || saving}
-          className="w-full py-2 bg-primary text-white rounded text-xs font-medium disabled:opacity-50"
+          className="w-full py-2.5 bg-primary text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90"
           data-testid="button-change-password"
         >
           Change Password
@@ -321,44 +407,48 @@ function DangerZoneSection() {
   };
 
   return (
-    <div className="bg-card border border-destructive/30 rounded p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <AlertTriangle size={14} className="text-destructive" />
-        <h2 className="text-sm font-medium text-destructive">Danger Zone</h2>
+    <div className="bg-card border border-destructive/30 rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <AlertTriangle size={18} className="text-destructive" />
+        <h2 className="text-base font-medium text-destructive">Danger Zone</h2>
       </div>
+
+      <p className="text-sm text-muted-foreground mb-4">
+        Once you delete your account, there is no going back. Please be certain.
+      </p>
 
       {!confirming ? (
         <button
           onClick={() => setConfirming(true)}
-          className="w-full py-2 border border-destructive text-destructive rounded text-xs font-medium hover:bg-destructive/10"
+          className="px-4 py-2.5 border border-destructive text-destructive rounded-lg text-sm font-medium hover:bg-destructive/10"
           data-testid="button-delete-account"
         >
           Delete Account
         </button>
       ) : (
-        <div className="space-y-3">
-          <p className="text-xs text-muted-foreground">Enter your password to confirm:</p>
+        <div className="space-y-4 max-w-md">
+          <p className="text-sm text-muted-foreground">Enter your password to confirm deletion:</p>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-2 py-1.5 rounded border border-destructive bg-secondary text-xs"
+            className="w-full px-3 py-2 rounded-lg border border-destructive bg-secondary text-sm"
             placeholder="Password"
             data-testid="input-delete-password"
           />
-          {error && <p className="text-xs text-destructive">{error}</p>}
-          <div className="flex gap-2">
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex gap-3">
             <button
               onClick={handleDelete}
               disabled={!password || deleting}
-              className="flex-1 py-2 bg-destructive text-white rounded text-xs font-medium disabled:opacity-50"
+              className="flex-1 py-2.5 bg-destructive text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-destructive/90"
               data-testid="button-confirm-delete"
             >
               {deleting ? "Deleting..." : "Confirm Delete"}
             </button>
             <button
               onClick={() => { setConfirming(false); setPassword(""); setError(""); }}
-              className="flex-1 py-2 bg-secondary rounded text-xs font-medium"
+              className="flex-1 py-2.5 bg-secondary rounded-lg text-sm font-medium hover:bg-secondary/80"
             >
               Cancel
             </button>
@@ -370,16 +460,20 @@ function DangerZoneSection() {
 }
 
 export default function AccountPage() {
+  const [activeTab, setActiveTab] = useState<TabType>("profile");
+
   return (
     <RequireAuth>
       <Layout>
-        <div className="max-w-lg mx-auto px-3 py-5">
-          <h1 className="text-base font-medium text-foreground mb-4" data-testid="text-account-title">Account</h1>
-          <div className="space-y-4">
-            <ProfileSection />
-            <ConnectionsSection />
-            <SecuritySection />
-            <DangerZoneSection />
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex gap-8">
+            <SidebarNav activeTab={activeTab} setActiveTab={setActiveTab} />
+            <div className="flex-1 min-w-0">
+              {activeTab === "profile" && <ProfileSection />}
+              {activeTab === "connections" && <ConnectionsSection />}
+              {activeTab === "security" && <SecuritySection />}
+              {activeTab === "danger" && <DangerZoneSection />}
+            </div>
           </div>
         </div>
       </Layout>

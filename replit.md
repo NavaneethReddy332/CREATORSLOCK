@@ -24,20 +24,26 @@ Preferred communication style: Simple, everyday language.
 - **Language**: TypeScript (ESM modules)
 - **API Design**: RESTful JSON API with `/api` prefix
 - **Authentication**: Password-based auth using bcryptjs for hashing
-- **Session Management**: Planned but not fully implemented
+- **Session Management**: MemoryStore for session storage
 
 ### Data Layer
-- **ORM**: Drizzle ORM with PostgreSQL dialect
+- **Database**: Turso (libSQL) - SQLite-compatible edge database
+- **ORM**: Drizzle ORM with SQLite dialect
 - **Schema Location**: `shared/schema.ts` (shared between client and server)
 - **Validation**: Zod schemas generated from Drizzle schemas using drizzle-zod
-- **Database**: PostgreSQL (requires DATABASE_URL environment variable)
+- **Environment Variables**: 
+  - `TURSO_DATABASE_URL` - Turso database connection URL
+  - `TURSO_AUTH_TOKEN` - Turso authentication token
 
 ### Database Schema
 Four main tables:
 1. **users** - Creator accounts with username/password
 2. **connections** - Social media platform links (YouTube, Instagram, TikTok)
-3. **lockedLinks** - Generated locked content URLs with unlock codes
-4. **unlockAttempts** - Tracks user progress through unlock requirements
+3. **locked_links** - Generated locked content URLs with unlock codes
+4. **unlock_attempts** - Tracks user progress through unlock requirements
+
+### Database Initialization
+Tables are automatically created on server startup via `server/init-db.ts`. This script creates all necessary tables if they don't exist.
 
 ### Project Structure
 ```
@@ -50,9 +56,10 @@ Four main tables:
 ├── server/           # Express backend
 │   ├── routes.ts     # API endpoints
 │   ├── storage.ts    # Database access layer
-│   └── db.ts         # Database connection
+│   ├── db.ts         # Turso database connection
+│   └── init-db.ts    # Database table initialization
 ├── shared/           # Shared code (schema)
-└── migrations/       # Drizzle migrations
+└── migrations/       # Drizzle migrations (legacy)
 ```
 
 ### Key Design Decisions
@@ -60,12 +67,13 @@ Four main tables:
 - **Type Safety**: End-to-end TypeScript with shared schema definitions
 - **Component Library**: Pre-built shadcn/ui components for consistent design
 - **Storage Pattern**: Interface-based storage layer for testability
+- **Turso Database**: Edge-compatible SQLite database for low-latency global access
 
 ## External Dependencies
 
 ### Database
-- **PostgreSQL**: Primary database accessed via `DATABASE_URL` environment variable
-- **Drizzle Kit**: Schema migrations with `npm run db:push`
+- **Turso (libSQL)**: Primary database accessed via `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`
+- **@libsql/client**: Turso client library for Node.js
 
 ### Frontend Libraries
 - **@tanstack/react-query**: Async state management
@@ -83,3 +91,11 @@ Four main tables:
 - **Vite**: Frontend bundler and dev server
 - **esbuild**: Server bundling for production
 - **tsx**: TypeScript execution for development
+
+## Recent Changes
+
+### December 2024
+- Migrated from PostgreSQL to Turso (libSQL) database
+- Updated schema from pg-core to sqlite-core
+- Redesigned Account page with sidebar navigation layout
+- Added automatic database table initialization on startup
