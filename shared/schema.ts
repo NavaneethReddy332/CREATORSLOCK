@@ -8,6 +8,11 @@ export const users = sqliteTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  displayName: text("display_name"),
+  profileImage: text("profile_image"),
+  bannerColor: text("banner_color").default("#6366f1"),
+  accentColor: text("accent_color").default("#8b5cf6"),
+  audienceMessage: text("audience_message"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
@@ -51,6 +56,8 @@ export const lockedLinks = sqliteTable("locked_links", {
   targetUrl: text("target_url").notNull(),
   unlockCode: text("unlock_code").notNull().unique(),
   requiredActions: text("required_actions").notNull(),
+  expiresAt: text("expires_at"),
+  customUnlockMessage: text("custom_unlock_message"),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 

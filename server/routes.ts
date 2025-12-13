@@ -133,18 +133,28 @@ export async function registerRoutes(
 
   app.put("/api/account/profile", requireAuth, async (req, res) => {
     try {
-      const { username } = req.body;
+      const { username, displayName, profileImage, bannerColor, accentColor, audienceMessage } = req.body;
       
-      if (!username || username.length < 3 || username.length > 30) {
-        return res.status(400).json({ error: "Username must be 3-30 characters" });
+      const updateData: Record<string, any> = {};
+      
+      if (username !== undefined) {
+        if (!username || username.length < 3 || username.length > 30) {
+          return res.status(400).json({ error: "Username must be 3-30 characters" });
+        }
+        const existing = await storage.getUserByUsername(username);
+        if (existing && existing.id !== req.session.userId) {
+          return res.status(400).json({ error: "Username already taken" });
+        }
+        updateData.username = username;
       }
+      
+      if (displayName !== undefined) updateData.displayName = displayName;
+      if (profileImage !== undefined) updateData.profileImage = profileImage;
+      if (bannerColor !== undefined) updateData.bannerColor = bannerColor;
+      if (accentColor !== undefined) updateData.accentColor = accentColor;
+      if (audienceMessage !== undefined) updateData.audienceMessage = audienceMessage;
 
-      const existing = await storage.getUserByUsername(username);
-      if (existing && existing.id !== req.session.userId) {
-        return res.status(400).json({ error: "Username already taken" });
-      }
-
-      const user = await storage.updateUser(req.session.userId!, { username });
+      const user = await storage.updateUser(req.session.userId!, updateData);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }

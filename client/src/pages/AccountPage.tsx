@@ -94,28 +94,114 @@ function SidebarNav({ activeTab, setActiveTab }: { activeTab: TabType; setActive
   );
 }
 
+interface ProfileData {
+  displayName: string;
+  profileImage: string;
+  bannerColor: string;
+  accentColor: string;
+  audienceMessage: string;
+}
+
+function ProfilePreviewCard({ data, username }: { data: ProfileData; username: string }) {
+  const getInitials = () => {
+    const name = data.displayName || username || "U";
+    return name.slice(0, 2).toUpperCase();
+  };
+
+  return (
+    <div className="w-full max-w-[280px]">
+      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+        <div 
+          className="h-24 relative"
+          style={{ backgroundColor: data.bannerColor || "#6366f1" }}
+        />
+        <div className="relative px-4 pb-4">
+          <div 
+            className="w-20 h-20 rounded-full border-4 border-card -mt-10 flex items-center justify-center overflow-hidden"
+            style={{ backgroundColor: data.accentColor || "#8b5cf6" }}
+          >
+            {data.profileImage ? (
+              <img 
+                src={data.profileImage} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <span className="text-xl font-bold text-white">{getInitials()}</span>
+            )}
+          </div>
+          <div className="mt-3">
+            <h3 className="text-lg font-bold text-foreground">
+              {data.displayName || username || "Your Name"}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {data.audienceMessage || "Welcome! Complete the actions below to unlock exclusive content."}
+            </p>
+          </div>
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground text-center mt-3">
+        This is how your locked page banner will appear
+      </p>
+    </div>
+  );
+}
+
 function ProfileSection() {
   const { user, refresh } = useAuth();
-  const [editingUsername, setEditingUsername] = useState(false);
-  const [editingEmail, setEditingEmail] = useState(false);
-  const [username, setUsername] = useState(user?.username || "");
-  const [email, setEmail] = useState(user?.email || "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  
+  const [formData, setFormData] = useState<ProfileData>({
+    displayName: "",
+    profileImage: "",
+    bannerColor: "#6366f1",
+    accentColor: "#8b5cf6",
+    audienceMessage: "",
+  });
 
-  const handleSaveUsername = async () => {
+  const { isLoading } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await fetch("/api/account/profile");
+      const data = await res.json();
+      if (data.user) {
+        setFormData({
+          displayName: data.user.displayName || "",
+          profileImage: data.user.profileImage || "",
+          bannerColor: data.user.bannerColor || "#6366f1",
+          accentColor: data.user.accentColor || "#8b5cf6",
+          audienceMessage: data.user.audienceMessage || "",
+        });
+      }
+      return data;
+    },
+    staleTime: 0,
+  });
+
+  const updateField = (field: keyof ProfileData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setHasChanges(true);
+    setError("");
+  };
+
+  const handleSave = async () => {
     setSaving(true);
     setError("");
     try {
       const res = await fetch("/api/account/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify(formData),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       await refresh();
-      setEditingUsername(false);
+      setHasChanges(false);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -123,82 +209,139 @@ function ProfileSection() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="bg-card border border-border rounded-lg p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-muted rounded w-32" />
+          <div className="flex gap-8">
+            <div className="w-64 h-72 bg-muted rounded-xl" />
+            <div className="flex-1 space-y-4">
+              <div className="h-10 bg-muted rounded" />
+              <div className="h-10 bg-muted rounded" />
+              <div className="h-20 bg-muted rounded" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-card border border-border rounded-lg p-6">
-      <h2 className="text-base font-medium mb-6">Profile</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-base font-medium">Profile Customization</h2>
+        <motion.button
+          onClick={handleSave}
+          disabled={saving || !hasChanges}
+          className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 flex items-center gap-2"
+          data-testid="button-save-profile"
+          whileTap={{ scale: 0.98 }}
+        >
+          {saving ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save size={14} />
+              Save Changes
+            </>
+          )}
+        </motion.button>
+      </div>
       
-      <div className="space-y-5">
-        <div className="flex items-center justify-between py-2 border-b border-border/50">
-          <div className="flex items-center gap-8">
-            <span className="text-sm text-muted-foreground w-20">Username</span>
-            {editingUsername ? (
+      <div className="flex gap-8">
+        <ProfilePreviewCard data={formData} username={user?.username || ""} />
+        
+        <div className="flex-1 space-y-5">
+          <div>
+            <label className="block text-sm text-muted-foreground mb-2">Display Name</label>
+            <input
+              type="text"
+              value={formData.displayName}
+              onChange={(e) => updateField("displayName", e.target.value)}
+              placeholder={user?.username || "Your creator name"}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-secondary text-sm placeholder:text-muted-foreground"
+              data-testid="input-display-name"
+            />
+            <p className="text-xs text-muted-foreground mt-1">This appears on your locked pages</p>
+          </div>
+
+          <div>
+            <label className="block text-sm text-muted-foreground mb-2">Profile Image URL</label>
+            <input
+              type="url"
+              value={formData.profileImage}
+              onChange={(e) => updateField("profileImage", e.target.value)}
+              placeholder="https://example.com/your-image.jpg"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-secondary text-sm placeholder:text-muted-foreground"
+              data-testid="input-profile-image"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Leave empty to show your initials</p>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm text-muted-foreground mb-2">Banner Color</label>
               <div className="flex items-center gap-2">
                 <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="px-3 py-1.5 rounded border border-border bg-secondary text-sm min-w-[200px]"
-                  data-testid="input-username"
-                  autoFocus
+                  type="color"
+                  value={formData.bannerColor}
+                  onChange={(e) => updateField("bannerColor", e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                  data-testid="input-banner-color"
                 />
-                <button 
-                  onClick={handleSaveUsername} 
-                  disabled={saving} 
-                  className="p-1.5 bg-primary text-white rounded hover:bg-primary/90"
-                  data-testid="button-save-username"
-                >
-                  <Check size={14} />
-                </button>
-                <button 
-                  onClick={() => { setEditingUsername(false); setUsername(user?.username || ""); setError(""); }} 
-                  className="p-1.5 bg-secondary rounded hover:bg-secondary/80"
-                >
-                  <X size={14} />
-                </button>
+                <input
+                  type="text"
+                  value={formData.bannerColor}
+                  onChange={(e) => updateField("bannerColor", e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-secondary text-sm font-mono"
+                />
               </div>
-            ) : (
-              <span className="text-sm font-medium text-foreground">{user?.username}</span>
-            )}
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm text-muted-foreground mb-2">Accent Color</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={formData.accentColor}
+                  onChange={(e) => updateField("accentColor", e.target.value)}
+                  className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                  data-testid="input-accent-color"
+                />
+                <input
+                  type="text"
+                  value={formData.accentColor}
+                  onChange={(e) => updateField("accentColor", e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-secondary text-sm font-mono"
+                />
+              </div>
+            </div>
           </div>
-          {!editingUsername && (
-            <button 
-              onClick={() => setEditingUsername(true)} 
-              className="p-1.5 hover:bg-secondary rounded text-primary"
-              data-testid="button-edit-username"
-            >
-              <ExternalLink size={16} />
-            </button>
-          )}
-        </div>
-        
-        <div className="flex items-center justify-between py-2 border-b border-border/50">
-          <div className="flex items-center gap-8">
-            <span className="text-sm text-muted-foreground w-20">Email</span>
-            <span className="text-sm font-medium text-foreground">{user?.email}</span>
-          </div>
-          <button 
-            className="p-1.5 hover:bg-secondary rounded text-primary opacity-50 cursor-not-allowed"
-            disabled
-            title="Email cannot be changed"
-          >
-            <ExternalLink size={16} />
-          </button>
-        </div>
-        
-        <div className="flex items-center py-2">
-          <div className="flex items-center gap-8">
-            <span className="text-sm text-muted-foreground w-20">Joined</span>
-            <span className="text-sm font-medium text-foreground">
-              {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              }) : "-"}
-            </span>
-          </div>
-        </div>
 
-        {error && <p className="text-xs text-destructive mt-2">{error}</p>}
+          <div>
+            <label className="block text-sm text-muted-foreground mb-2">Audience Message</label>
+            <textarea
+              value={formData.audienceMessage}
+              onChange={(e) => updateField("audienceMessage", e.target.value)}
+              placeholder="Welcome! Complete the actions below to unlock exclusive content."
+              rows={3}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-secondary text-sm placeholder:text-muted-foreground resize-none"
+              data-testid="input-audience-message"
+            />
+            <p className="text-xs text-muted-foreground mt-1">Message shown to visitors on your locked pages</p>
+          </div>
+
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          
+          <div className="pt-4 border-t border-border/50">
+            <p className="text-xs text-muted-foreground">
+              <strong>Account Info:</strong> {user?.email} • Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "-"}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

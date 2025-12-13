@@ -38,7 +38,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, data: Partial<Pick<User, "username" | "password">>): Promise<User | undefined>;
+  updateUser(id: number, data: Partial<Pick<User, "username" | "password" | "displayName" | "profileImage" | "bannerColor" | "accentColor" | "audienceMessage">>): Promise<User | undefined>;
   deleteUser(id: number): Promise<void>;
 
   getUserConnections(userId: number): Promise<Connection[]>;
@@ -77,7 +77,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async updateUser(id: number, data: Partial<Pick<User, "username" | "password">>): Promise<User | undefined> {
+  async updateUser(id: number, data: Partial<Pick<User, "username" | "password" | "displayName" | "profileImage" | "bannerColor" | "accentColor" | "audienceMessage">>): Promise<User | undefined> {
     const [user] = await db.update(users).set(data).where(eq(users.id, id)).returning();
     return user || undefined;
   }
