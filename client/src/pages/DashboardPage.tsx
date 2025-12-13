@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { RequireAuth, useAuth } from "@/lib/auth";
-import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles } from "lucide-react";
+import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -9,6 +9,14 @@ interface Connection {
   id: number;
   platform: string;
   url: string;
+}
+
+function TikTokIcon({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+    </svg>
+  );
 }
 
 export default function Dashboard() {
@@ -77,9 +85,15 @@ export default function Dashboard() {
 
   const getIcon = (platform: string) => {
     switch (platform) {
-      case "YouTube": return <Youtube size={14} className="text-red-400" />;
-      case "Instagram": return <Instagram size={14} className="text-pink-400" />;
-      default: return <Link2 size={14} className="text-primary" />;
+      case "YouTube": return <Youtube size={14} className="text-red-500" />;
+      case "Instagram": return <Instagram size={14} className="text-pink-500" />;
+      case "Twitter": return <Twitter size={14} className="text-sky-400" />;
+      case "TikTok": return <TikTokIcon size={14} className="text-foreground" />;
+      case "Facebook": return <Facebook size={14} className="text-blue-600" />;
+      case "Twitch": return <Twitch size={14} className="text-purple-500" />;
+      case "GitHub": return <Github size={14} className="text-foreground" />;
+      case "LinkedIn": return <Linkedin size={14} className="text-blue-500" />;
+      default: return <Globe size={14} className="text-muted-foreground" />;
     }
   };
 

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { useAuth, RequireAuth } from "@/lib/auth";
-import { User, Link2, Shield, AlertTriangle, Plus, Trash2, Edit2, Check, X, Youtube, Instagram, Twitter, Facebook, Twitch, Github, Linkedin, Globe, ExternalLink } from "lucide-react";
+import { User, Link2, Shield, AlertTriangle, Plus, Trash2, Edit2, Check, X, Youtube, Instagram, Twitter, Facebook, Twitch, Github, Linkedin, Globe, ExternalLink, Loader2, Save } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ExpandTransition } from "@/components/PageTransition";
+import { motion } from "framer-motion";
 
 interface Connection {
   id: number;
@@ -13,16 +15,37 @@ interface Connection {
 
 type TabType = "profile" | "connections" | "security" | "danger";
 
+function TikTokIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+    </svg>
+  );
+}
+
+function ConnectionSkeleton() {
+  return (
+    <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border border-border/50 animate-pulse">
+      <div className="w-6 h-6 rounded bg-muted" />
+      <div className="flex-1 space-y-2">
+        <div className="h-3 bg-muted rounded w-24" />
+        <div className="h-2 bg-muted/60 rounded w-48" />
+      </div>
+    </div>
+  );
+}
+
 function getPlatformIcon(platform: string) {
   const size = 16;
   switch (platform) {
-    case "YouTube": return <Youtube size={size} className="text-red-400" />;
-    case "Instagram": return <Instagram size={size} className="text-pink-400" />;
-    case "Twitter": return <Twitter size={size} className="text-blue-400" />;
-    case "Facebook": return <Facebook size={size} className="text-blue-500" />;
-    case "Twitch": return <Twitch size={size} className="text-purple-400" />;
-    case "GitHub": return <Github size={size} className="text-gray-400" />;
-    case "LinkedIn": return <Linkedin size={size} className="text-blue-400" />;
+    case "YouTube": return <Youtube size={size} className="text-red-500" />;
+    case "Instagram": return <Instagram size={size} className="text-pink-500" />;
+    case "Twitter": return <Twitter size={size} className="text-sky-400" />;
+    case "TikTok": return <TikTokIcon size={size} className="text-foreground" />;
+    case "Facebook": return <Facebook size={size} className="text-blue-600" />;
+    case "Twitch": return <Twitch size={size} className="text-purple-500" />;
+    case "GitHub": return <Github size={size} className="text-foreground" />;
+    case "LinkedIn": return <Linkedin size={size} className="text-blue-500" />;
     default: return <Globe size={size} className="text-muted-foreground" />;
   }
 }
@@ -240,13 +263,28 @@ function ConnectionsSection() {
       <h2 className="text-base font-medium mb-6">Connections</h2>
 
       <div className="space-y-3 mb-4">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading...</p>}
+        {isLoading && (
+          <>
+            <ConnectionSkeleton />
+            <ConnectionSkeleton />
+            <ConnectionSkeleton />
+          </>
+        )}
         {data?.connections?.length === 0 && !isLoading && (
           <p className="text-sm text-muted-foreground">No connections added yet.</p>
         )}
         {data?.connections?.map((conn) => (
-          <div key={conn.id} className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border border-border/50">
-            {getPlatformIcon(conn.platform)}
+          <motion.div 
+            key={conn.id} 
+            className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg border border-border/50"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="w-8 h-8 rounded-lg bg-card border border-border/50 flex items-center justify-center">
+              {getPlatformIcon(conn.platform)}
+            </div>
             {editingId === conn.id ? (
               <>
                 <input
@@ -256,10 +294,11 @@ function ConnectionsSection() {
                   className="flex-1 px-3 py-1.5 rounded border border-border bg-card text-sm"
                 />
                 <button 
-                  onClick={() => updateMutation.mutate({ id: conn.id, url: editUrl })} 
-                  className="p-1.5 bg-primary text-white rounded hover:bg-primary/90"
+                  onClick={() => updateMutation.mutate({ id: conn.id, url: editUrl })}
+                  disabled={updateMutation.isPending}
+                  className="p-1.5 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1"
                 >
-                  <Check size={12} />
+                  {updateMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
                 </button>
                 <button 
                   onClick={() => setEditingId(null)} 
@@ -270,7 +309,10 @@ function ConnectionsSection() {
               </>
             ) : (
               <>
-                <span className="flex-1 text-sm truncate">{conn.url}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-foreground">{conn.platform}</p>
+                  <p className="text-xs text-muted-foreground truncate">{conn.url}</p>
+                </div>
                 <button 
                   onClick={() => { setEditingId(conn.id); setEditUrl(conn.url); }} 
                   className="p-1.5 hover:bg-card rounded"
@@ -278,14 +320,15 @@ function ConnectionsSection() {
                   <Edit2 size={14} className="text-muted-foreground" />
                 </button>
                 <button 
-                  onClick={() => deleteMutation.mutate(conn.id)} 
-                  className="p-1.5 hover:bg-card rounded"
+                  onClick={() => deleteMutation.mutate(conn.id)}
+                  disabled={deleteMutation.isPending}
+                  className="p-1.5 hover:bg-card rounded disabled:opacity-50"
                 >
-                  <Trash2 size={14} className="text-destructive" />
+                  {deleteMutation.isPending ? <Loader2 size={14} className="animate-spin text-destructive" /> : <Trash2 size={14} className="text-destructive" />}
                 </button>
               </>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
 
@@ -294,7 +337,7 @@ function ConnectionsSection() {
           type="text"
           value={newUrl}
           onChange={(e) => setNewUrl(e.target.value)}
-          placeholder="https://youtube.com/@channel"
+          placeholder="https://youtube.com/@channel or tiktok.com/@user"
           className="flex-1 px-3 py-2 rounded-lg border border-border bg-secondary text-sm placeholder:text-muted-foreground"
           data-testid="input-new-connection"
         />
@@ -304,8 +347,17 @@ function ConnectionsSection() {
           className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 flex items-center gap-2"
           data-testid="button-add-connection"
         >
-          <Plus size={14} />
-          Add
+          {addMutation.isPending ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Plus size={14} />
+              Add
+            </>
+          )}
         </button>
       </div>
     </div>
@@ -417,16 +469,16 @@ function DangerZoneSection() {
         Once you delete your account, there is no going back. Please be certain.
       </p>
 
-      {!confirming ? (
-        <button
-          onClick={() => setConfirming(true)}
-          className="px-4 py-2.5 border border-destructive text-destructive rounded-lg text-sm font-medium hover:bg-destructive/10"
-          data-testid="button-delete-account"
-        >
-          Delete Account
-        </button>
-      ) : (
-        <div className="space-y-4 max-w-md">
+      <button
+        onClick={() => setConfirming(!confirming)}
+        className="px-4 py-2.5 border border-destructive text-destructive rounded-lg text-sm font-medium hover:bg-destructive/10 transition-colors"
+        data-testid="button-delete-account"
+      >
+        {confirming ? "Cancel" : "Delete Account"}
+      </button>
+
+      <ExpandTransition isVisible={confirming}>
+        <div className="space-y-4 max-w-md mt-4 pt-4 border-t border-destructive/20">
           <p className="text-sm text-muted-foreground">Enter your password to confirm deletion:</p>
           <input
             type="password"
@@ -441,20 +493,21 @@ function DangerZoneSection() {
             <button
               onClick={handleDelete}
               disabled={!password || deleting}
-              className="flex-1 py-2.5 bg-destructive text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-destructive/90"
+              className="flex-1 py-2.5 bg-destructive text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-destructive/90 flex items-center justify-center gap-2"
               data-testid="button-confirm-delete"
             >
-              {deleting ? "Deleting..." : "Confirm Delete"}
-            </button>
-            <button
-              onClick={() => { setConfirming(false); setPassword(""); setError(""); }}
-              className="flex-1 py-2.5 bg-secondary rounded-lg text-sm font-medium hover:bg-secondary/80"
-            >
-              Cancel
+              {deleting ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Confirm Delete"
+              )}
             </button>
           </div>
         </div>
-      )}
+      </ExpandTransition>
     </div>
   );
 }
@@ -462,18 +515,30 @@ function DangerZoneSection() {
 export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
 
+  const renderSection = () => {
+    switch (activeTab) {
+      case "profile": return <ProfileSection />;
+      case "connections": return <ConnectionsSection />;
+      case "security": return <SecuritySection />;
+      case "danger": return <DangerZoneSection />;
+    }
+  };
+
   return (
     <RequireAuth>
       <Layout>
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex gap-8">
             <SidebarNav activeTab={activeTab} setActiveTab={setActiveTab} />
-            <div className="flex-1 min-w-0">
-              {activeTab === "profile" && <ProfileSection />}
-              {activeTab === "connections" && <ConnectionsSection />}
-              {activeTab === "security" && <SecuritySection />}
-              {activeTab === "danger" && <DangerZoneSection />}
-            </div>
+            <motion.div 
+              key={activeTab}
+              className="flex-1 min-w-0"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+            >
+              {renderSection()}
+            </motion.div>
           </div>
         </div>
       </Layout>
