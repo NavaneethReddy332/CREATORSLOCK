@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { RequireAuth, useAuth } from "@/lib/auth";
-import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe } from "lucide-react";
+import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -27,12 +27,14 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
 
-  const { data: connectionsData } = useQuery<{ connections: Connection[] }>({
+  const { data: connectionsData, isLoading: connectionsLoading } = useQuery<{ connections: Connection[] }>({
     queryKey: ["connections"],
     queryFn: async () => {
       const res = await fetch("/api/connections");
       return res.json();
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const connections = connectionsData?.connections || [];
@@ -126,12 +128,29 @@ export default function Dashboard() {
                 </div>
                 
                 <div className="divide-y divide-border">
-                  {connections.length === 0 && (
+                  {connectionsLoading ? (
+                    <>
+                      <div className="p-3 flex items-center gap-2 animate-pulse">
+                        <div className="w-6 h-6 rounded bg-muted" />
+                        <div className="flex-1 space-y-1">
+                          <div className="h-3 bg-muted rounded w-16" />
+                          <div className="h-2 bg-muted/60 rounded w-32" />
+                        </div>
+                      </div>
+                      <div className="p-3 flex items-center gap-2 animate-pulse">
+                        <div className="w-6 h-6 rounded bg-muted" />
+                        <div className="flex-1 space-y-1">
+                          <div className="h-3 bg-muted rounded w-20" />
+                          <div className="h-2 bg-muted/60 rounded w-28" />
+                        </div>
+                      </div>
+                    </>
+                  ) : connections.length === 0 ? (
                     <div className="p-3 text-xs text-muted-foreground text-center">
                       No connections yet
                     </div>
-                  )}
-                  {connections.map((conn) => (
+                  ) : null}
+                  {!connectionsLoading && connections.map((conn) => (
                     <div 
                       key={conn.id} 
                       className="p-3 flex items-center gap-2"

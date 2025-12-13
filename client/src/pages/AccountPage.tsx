@@ -210,12 +210,14 @@ function ConnectionsSection() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editUrl, setEditUrl] = useState("");
 
-  const { data, isLoading } = useQuery<{ connections: Connection[] }>({
+  const { data, isLoading, isFetching } = useQuery<{ connections: Connection[] }>({
     queryKey: ["connections"],
     queryFn: async () => {
       const res = await fetch("/api/connections");
       return res.json();
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 
   const addMutation = useMutation({
@@ -263,14 +265,19 @@ function ConnectionsSection() {
       <h2 className="text-base font-medium mb-6">Connections</h2>
 
       <div className="space-y-3 mb-4">
-        {isLoading && (
+        {isLoading ? (
           <>
             <ConnectionSkeleton />
             <ConnectionSkeleton />
             <ConnectionSkeleton />
           </>
-        )}
-        {data?.connections?.length === 0 && !isLoading && (
+        ) : isFetching && data?.connections?.length === 0 ? (
+          <>
+            <ConnectionSkeleton />
+            <ConnectionSkeleton />
+          </>
+        ) : null}
+        {data?.connections?.length === 0 && !isLoading && !isFetching && (
           <p className="text-sm text-muted-foreground">No connections added yet.</p>
         )}
         {data?.connections?.map((conn) => (
