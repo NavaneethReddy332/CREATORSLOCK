@@ -1,14 +1,14 @@
-import { pgTable, text, serial, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -23,12 +23,12 @@ export const insertUserSchema = createInsertSchema(users).omit({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-export const connections = pgTable("connections", {
-  id: serial("id").primaryKey(),
+export const connections = sqliteTable("connections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   platform: text("platform").notNull(),
   url: text("url").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const connectionsRelations = relations(connections, ({ one }) => ({
@@ -45,17 +45,13 @@ export const insertConnectionSchema = createInsertSchema(connections).omit({
 export type InsertConnection = z.infer<typeof insertConnectionSchema>;
 export type Connection = typeof connections.$inferSelect;
 
-export const lockedLinks = pgTable("locked_links", {
-  id: serial("id").primaryKey(),
+export const lockedLinks = sqliteTable("locked_links", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   targetUrl: text("target_url").notNull(),
   unlockCode: text("unlock_code").notNull().unique(),
-  requiredActions: jsonb("required_actions").notNull().$type<Array<{
-    platform: string;
-    action: string;
-    connectionId: number;
-  }>>(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  requiredActions: text("required_actions").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const lockedLinksRelations = relations(lockedLinks, ({ one, many }) => ({
@@ -73,13 +69,13 @@ export const insertLockedLinkSchema = createInsertSchema(lockedLinks).omit({
 export type InsertLockedLink = z.infer<typeof insertLockedLinkSchema>;
 export type LockedLink = typeof lockedLinks.$inferSelect;
 
-export const unlockAttempts = pgTable("unlock_attempts", {
-  id: serial("id").primaryKey(),
+export const unlockAttempts = sqliteTable("unlock_attempts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   linkId: integer("link_id").notNull().references(() => lockedLinks.id, { onDelete: "cascade" }),
-  completedActions: jsonb("completed_actions").$type<string[]>().notNull().default(sql`'[]'::jsonb`),
-  unlocked: boolean("unlocked").default(false).notNull(),
-  unlockedAt: timestamp("unlocked_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedActions: text("completed_actions").notNull().default("[]"),
+  unlocked: integer("unlocked", { mode: "boolean" }).default(false).notNull(),
+  unlockedAt: text("unlocked_at"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
 export const unlockAttemptsRelations = relations(unlockAttempts, ({ one }) => ({

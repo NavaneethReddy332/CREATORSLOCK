@@ -309,11 +309,18 @@ export async function registerRoutes(
 
   app.post("/api/links", requireAuth, async (req, res) => {
     try {
-      const data = insertLockedLinkSchema.parse({
-        ...req.body,
-        userId: req.session.userId,
+      const { targetUrl, unlockCode, requiredActions } = req.body;
+      
+      if (!targetUrl || !unlockCode || !requiredActions) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const link = await storage.createLockedLink({
+        userId: req.session.userId!,
+        targetUrl,
+        unlockCode,
+        requiredActions,
       });
-      const link = await storage.createLockedLink(data);
       res.json({ link });
     } catch (error) {
       if (error instanceof ZodError) {
@@ -331,11 +338,13 @@ export async function registerRoutes(
       let attempt = await storage.getUnlockAttempt(linkId);
       
       if (!attempt) {
-        attempt = await storage.createUnlockAttempt({
+        const newAttempt = await storage.createUnlockAttempt({
           linkId,
           completedActions: [],
           unlocked: false,
         });
+        res.json({ attempt: { ...newAttempt, parsedCompletedActions: [] } });
+        return;
       }
 
       res.json({ attempt });
@@ -353,7 +362,7 @@ export async function registerRoutes(
       const attempt = await storage.updateUnlockAttempt(id, {
         completedActions,
         unlocked,
-        unlockedAt: unlockedAt ? new Date(unlockedAt) : undefined,
+        unlockedAt: unlockedAt || undefined,
       });
 
       res.json({ attempt });
