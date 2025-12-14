@@ -1,9 +1,10 @@
 import { useState, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { RequireAuth, useAuth } from "@/lib/auth";
-import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe, Loader2, Upload, File, X } from "lucide-react";
+import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe, Loader2, Upload, File, X, CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Progress } from "@/components/ui/progress";
 
 interface Connection {
   id: number;
@@ -19,10 +20,15 @@ function TikTokIcon({ size = 14, className = "" }: { size?: number; className?: 
   );
 }
 
+type UploadStatus = "pending" | "uploading" | "completed" | "error";
+
 interface UploadedFile {
   file: File;
   name: string;
   size: number;
+  status: UploadStatus;
+  progress: number;
+  error?: string;
 }
 
 export default function Dashboard() {
@@ -33,9 +39,73 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [createdLinkId, setCreatedLinkId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const allFilesUploaded = uploadedFiles.length > 0 && uploadedFiles.every(f => f.status === "completed");
+  const anyFileUploading = uploadedFiles.some(f => f.status === "uploading");
+  const hasFilesToUpload = uploadedFiles.some(f => f.status === "pending");
+
+  const uploadFileWithProgress = (file: UploadedFile, index: number, linkId: number): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append("file", file.file);
+
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          setUploadedFiles(prev => prev.map((f, i) => 
+            i === index ? { ...f, progress: percentComplete } : f
+          ));
+        }
+      });
+
+      xhr.addEventListener("load", () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setUploadedFiles(prev => prev.map((f, i) => 
+            i === index ? { ...f, status: "completed" as UploadStatus, progress: 100 } : f
+          ));
+          resolve();
+        } else {
+          const errorMsg = "Upload failed";
+          setUploadedFiles(prev => prev.map((f, i) => 
+            i === index ? { ...f, status: "error" as UploadStatus, error: errorMsg } : f
+          ));
+          reject(new Error(errorMsg));
+        }
+      });
+
+      xhr.addEventListener("error", () => {
+        setUploadedFiles(prev => prev.map((f, i) => 
+          i === index ? { ...f, status: "error" as UploadStatus, error: "Network error" } : f
+        ));
+        reject(new Error("Network error"));
+      });
+
+      xhr.open("POST", `/api/files/upload/${linkId}`);
+      xhr.withCredentials = true;
+      
+      setUploadedFiles(prev => prev.map((f, i) => 
+        i === index ? { ...f, status: "uploading" as UploadStatus, progress: 0 } : f
+      ));
+      
+      xhr.send(formData);
+    });
+  };
+
+  const uploadSingleFile = async (index: number) => {
+    if (!createdLinkId) return;
+    const file = uploadedFiles[index];
+    if (file.status !== "pending") return;
+    
+    try {
+      await uploadFileWithProgress(file, index, createdLinkId);
+    } catch (error) {
+      console.error("Upload error:", error);
+    }
+  };
 
   const { data: connectionsData, isLoading: connectionsLoading } = useQuery<{ connections: Connection[] }>({
     queryKey: ["connections"],
@@ -73,22 +143,7 @@ export default function Dashboard() {
     },
     onSuccess: async (data) => {
       setCreatedLinkId(data.linkId);
-      
-      if (uploadedFiles.length > 0) {
-        setIsUploading(true);
-        for (const uploadedFile of uploadedFiles) {
-          const formData = new FormData();
-          formData.append("file", uploadedFile.file);
-          await fetch(`/api/files/upload/${data.linkId}`, {
-            method: "POST",
-            body: formData,
-          });
-        }
-        setIsUploading(false);
-      }
-      
       setGeneratedLink(`${window.location.origin}/unlock/${data.code}`);
-      setUploadedFiles([]);
     },
   });
 
@@ -99,6 +154,8 @@ export default function Dashboard() {
         file,
         name: file.name,
         size: file.size,
+        status: "pending" as UploadStatus,
+        progress: 0,
       }));
       setUploadedFiles(prev => [...prev, ...newFiles]);
     }
@@ -118,8 +175,18 @@ export default function Dashboard() {
   };
 
   const handleGenerate = () => {
-    const hasContent = targetUrl || uploadedFiles.length > 0;
-    if (hasContent && selectedPlatforms.length > 0) {
+    if (uploadedFiles.length > 0 && allFilesUploaded && createdLinkId && generatedLink) {
+      return;
+    }
+    
+    const hasContent = targetUrl || allFilesUploaded;
+    if (hasContent && selectedPlatforms.length > 0 && !createdLinkId) {
+      createLinkMutation.mutate();
+    }
+  };
+
+  const handleCreateLinkForUpload = () => {
+    if (uploadedFiles.length > 0 && selectedPlatforms.length > 0 && !createdLinkId) {
       createLinkMutation.mutate();
     }
   };
@@ -307,31 +374,81 @@ export default function Dashboard() {
 
                   {uploadedFiles.length > 0 && (
                     <div className="space-y-2">
-                      <label className="block text-xs font-medium text-foreground">
-                        Files to Upload ({uploadedFiles.length})
-                      </label>
-                      <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-medium text-foreground">
+                          Files to Upload ({uploadedFiles.length})
+                        </label>
+                        {!createdLinkId && selectedPlatforms.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleCreateLinkForUpload}
+                            disabled={createLinkMutation.isPending}
+                            className="text-xs text-primary hover:underline disabled:opacity-50"
+                            data-testid="button-prepare-upload"
+                          >
+                            {createLinkMutation.isPending ? "Preparing..." : "Prepare for Upload"}
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-2">
                         {uploadedFiles.map((file, index) => (
                           <div 
                             key={index}
-                            className="flex items-center gap-2 p-2 rounded border border-border bg-secondary"
+                            className="p-2 rounded border border-border bg-secondary"
                           >
-                            <File size={14} className="text-muted-foreground flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
-                              <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                            <div className="flex items-center gap-2">
+                              {file.status === "completed" ? (
+                                <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
+                              ) : file.status === "uploading" ? (
+                                <Loader2 size={14} className="text-primary animate-spin flex-shrink-0" />
+                              ) : (
+                                <File size={14} className="text-muted-foreground flex-shrink-0" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatFileSize(file.size)}
+                                  {file.status === "uploading" && ` - ${file.progress}%`}
+                                  {file.status === "completed" && " - Uploaded"}
+                                  {file.status === "error" && ` - ${file.error}`}
+                                </p>
+                              </div>
+                              {file.status === "pending" && createdLinkId && (
+                                <button
+                                  type="button"
+                                  onClick={() => uploadSingleFile(index)}
+                                  className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors flex items-center gap-1"
+                                  data-testid={`button-upload-file-${index}`}
+                                >
+                                  <Upload size={12} />
+                                  Upload
+                                </button>
+                              )}
+                              {file.status === "pending" && !createdLinkId && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeFile(index)}
+                                  className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                                  data-testid={`button-remove-file-${index}`}
+                                >
+                                  <X size={14} />
+                                </button>
+                              )}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              className="p-1 text-muted-foreground hover:text-destructive transition-colors"
-                              data-testid={`button-remove-file-${index}`}
-                            >
-                              <X size={14} />
-                            </button>
+                            {file.status === "uploading" && (
+                              <div className="mt-2">
+                                <Progress value={file.progress} className="h-1.5" />
+                                <p className="text-xs text-muted-foreground mt-1 text-right">{file.progress}% uploaded</p>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
+                      {createdLinkId && hasFilesToUpload && (
+                        <p className="text-xs text-amber-500">
+                          Click "Upload" on each file to upload them to Google Drive
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -371,12 +488,24 @@ export default function Dashboard() {
 
                   <button 
                     onClick={handleGenerate}
-                    disabled={(!targetUrl && uploadedFiles.length === 0) || selectedPlatforms.length === 0 || createLinkMutation.isPending || isUploading}
+                    disabled={
+                      (!targetUrl && uploadedFiles.length === 0) || 
+                      selectedPlatforms.length === 0 || 
+                      createLinkMutation.isPending || 
+                      anyFileUploading ||
+                      (uploadedFiles.length > 0 && !allFilesUploaded)
+                    }
                     className="w-full bg-primary text-primary-foreground py-2.5 rounded text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     data-testid="button-generate-link"
                   >
-                    {(createLinkMutation.isPending || isUploading) && <Loader2 size={14} className="animate-spin" />}
-                    {isUploading ? "Uploading Files..." : createLinkMutation.isPending ? "Creating..." : "Generate Locked Link"}
+                    {(createLinkMutation.isPending || anyFileUploading) && <Loader2 size={14} className="animate-spin" />}
+                    {anyFileUploading 
+                      ? "Uploading Files..." 
+                      : createLinkMutation.isPending 
+                        ? "Creating..." 
+                        : uploadedFiles.length > 0 && !allFilesUploaded
+                          ? "Upload All Files First"
+                          : "Generate Locked Link"}
                   </button>
 
                   {generatedLink && (
