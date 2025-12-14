@@ -9,6 +9,11 @@ const app = express();
 const httpServer = createServer(app);
 const SessionStore = MemoryStore(session);
 
+// Trust proxy for production deployments behind reverse proxies (Render, etc.)
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
@@ -43,6 +48,7 @@ app.use(
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: "lax",
     },
   })
 );
