@@ -10,6 +10,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import DashboardPage from "@/pages/DashboardPage";
 import UnlockPage from "@/pages/UnlockPage";
+import DownloadPage from "@/pages/DownloadPage";
 import AuthPage from "@/pages/AuthPage";
 import AccountPage from "@/pages/AccountPage";
 
@@ -25,6 +26,7 @@ function Router() {
           <Route path="/dashboard" component={DashboardPage} />
           <Route path="/account" component={AccountPage} />
           <Route path="/unlock/:id" component={UnlockPage} />
+          <Route path="/download/:code" component={DownloadPage} />
           <Route component={NotFound} />
         </Switch>
       </PageTransition>

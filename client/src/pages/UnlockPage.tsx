@@ -188,8 +188,14 @@ export default function UnlockPage() {
         unlockedAt: new Date().toISOString(),
       });
       setTimeout(() => setShowConfetti(false), 4000);
+      
+      if (link?.targetUrl === "__FILES__") {
+        setTimeout(() => {
+          window.location.href = `/download/${code}`;
+        }, 2000);
+      }
     }
-  }, [allDone, attempt?.unlocked, attempt?.id]);
+  }, [allDone, attempt?.unlocked, attempt?.id, link?.targetUrl, code]);
 
   const handleTaskClick = async (task: RequiredAction) => {
     const actionKey = `${task.connectionId}-${task.action}`;
@@ -213,7 +219,9 @@ export default function UnlockPage() {
   };
 
   const handleAccessContent = () => {
-    if (link?.targetUrl) {
+    if (link?.targetUrl === "__FILES__") {
+      window.location.href = `/download/${code}`;
+    } else if (link?.targetUrl) {
       window.open(link.targetUrl, "_blank");
     }
   };

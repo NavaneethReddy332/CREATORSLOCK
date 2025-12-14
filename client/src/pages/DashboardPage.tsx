@@ -268,20 +268,72 @@ export default function Dashboard() {
                 <div className="p-4 space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-1.5">
-                      Content URL
+                      Content URL or Upload Files
                     </label>
-                    <input 
-                      type="url" 
-                      placeholder="https://your-content-url.com"
-                      value={targetUrl}
-                      onChange={(e) => setTargetUrl(e.target.value)}
-                      className="w-full px-3 py-2 rounded border border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-                      data-testid="input-target-url"
+                    <div className="flex gap-2">
+                      <input 
+                        type="url" 
+                        placeholder="https://your-content-url.com"
+                        value={targetUrl}
+                        onChange={(e) => setTargetUrl(e.target.value)}
+                        disabled={uploadedFiles.length > 0}
+                        className="flex-1 px-3 py-2 rounded border border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary text-xs disabled:opacity-50"
+                        data-testid="input-target-url"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={!!targetUrl}
+                        className="px-3 py-2 rounded border border-border bg-secondary text-foreground hover:bg-secondary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        data-testid="button-upload-files"
+                      >
+                        <Upload size={14} />
+                      </button>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      data-testid="input-file-upload"
                     />
                     <p className="mt-1 text-xs text-muted-foreground">
-                      The link visitors will unlock after completing actions
+                      {uploadedFiles.length > 0 
+                        ? "Files will be uploaded to Google Drive for download" 
+                        : "Enter a URL or upload files for visitors to unlock"}
                     </p>
                   </div>
+
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <label className="block text-xs font-medium text-foreground">
+                        Files to Upload ({uploadedFiles.length})
+                      </label>
+                      <div className="space-y-1.5">
+                        {uploadedFiles.map((file, index) => (
+                          <div 
+                            key={index}
+                            className="flex items-center gap-2 p-2 rounded border border-border bg-secondary"
+                          >
+                            <File size={14} className="text-muted-foreground flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-foreground truncate">{file.name}</p>
+                              <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeFile(index)}
+                              className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                              data-testid={`button-remove-file-${index}`}
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-medium text-foreground mb-2">
@@ -319,11 +371,12 @@ export default function Dashboard() {
 
                   <button 
                     onClick={handleGenerate}
-                    disabled={!targetUrl || selectedPlatforms.length === 0 || createLinkMutation.isPending}
-                    className="w-full bg-primary text-primary-foreground py-2.5 rounded text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={(!targetUrl && uploadedFiles.length === 0) || selectedPlatforms.length === 0 || createLinkMutation.isPending || isUploading}
+                    className="w-full bg-primary text-primary-foreground py-2.5 rounded text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     data-testid="button-generate-link"
                   >
-                    {createLinkMutation.isPending ? "Creating..." : "Generate Locked Link"}
+                    {(createLinkMutation.isPending || isUploading) && <Loader2 size={14} className="animate-spin" />}
+                    {isUploading ? "Uploading Files..." : createLinkMutation.isPending ? "Creating..." : "Generate Locked Link"}
                   </button>
 
                   {generatedLink && (
