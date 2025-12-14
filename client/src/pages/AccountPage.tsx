@@ -97,6 +97,7 @@ function SidebarNav({ activeTab, setActiveTab }: { activeTab: TabType; setActive
 interface ProfileData {
   displayName: string;
   profileImage: string;
+  bannerImage: string;
   audienceMessage: string;
 }
 
@@ -109,6 +110,7 @@ function ProfileSection() {
   const [formData, setFormData] = useState<ProfileData>({
     displayName: "",
     profileImage: "",
+    bannerImage: "",
     audienceMessage: "",
   });
 
@@ -121,6 +123,7 @@ function ProfileSection() {
         setFormData({
           displayName: data.user.displayName || "",
           profileImage: data.user.profileImage || "",
+          bannerImage: data.user.bannerImage || "",
           audienceMessage: data.user.audienceMessage || "",
         });
       }
@@ -182,50 +185,58 @@ function ProfileSection() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6">
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center overflow-hidden flex-shrink-0">
-            {formData.profileImage ? (
-              <img 
-                src={formData.profileImage} 
-                alt="Profile" 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            ) : (
-              <span className="text-2xl font-bold text-primary-foreground">{getInitials()}</span>
-            )}
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-foreground">
-              {formData.displayName || user?.username || "Your Name"}
-            </h2>
-            <p className="text-sm text-muted-foreground">Profile Customization</p>
-          </div>
-        </div>
-        <motion.button
-          onClick={handleSave}
-          disabled={saving || !hasChanges}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 flex items-center gap-2 flex-shrink-0"
-          data-testid="button-save-profile"
-          whileTap={{ scale: 0.98 }}
-        >
-          {saving ? (
-            <>
-              <Loader2 size={14} className="animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save size={14} />
-              Save Changes
-            </>
-          )}
-        </motion.button>
+    <div className="bg-card border border-border rounded-lg overflow-hidden">
+      <div 
+        className="h-24 relative bg-gradient-to-r from-primary/30 to-primary/10"
+        style={formData.bannerImage ? { backgroundImage: `url(${formData.bannerImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+        data-testid="img-banner-preview"
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
       </div>
+      <div className="p-6 -mt-10 relative">
+        <div className="flex items-start justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center overflow-hidden flex-shrink-0 border-4 border-card">
+              {formData.profileImage ? (
+                <img 
+                  src={formData.profileImage} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              ) : (
+                <span className="text-2xl font-bold text-primary-foreground">{getInitials()}</span>
+              )}
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">
+                {formData.displayName || user?.username || "Your Name"}
+              </h2>
+              <p className="text-sm text-muted-foreground">Profile Customization</p>
+            </div>
+          </div>
+          <motion.button
+            onClick={handleSave}
+            disabled={saving || !hasChanges}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-primary/90 flex items-center gap-2 flex-shrink-0"
+            data-testid="button-save-profile"
+            whileTap={{ scale: 0.98 }}
+          >
+            {saving ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={14} />
+                Save Changes
+              </>
+            )}
+          </motion.button>
+        </div>
       
       <div className="space-y-5 max-w-2xl">
         <div>
@@ -255,6 +266,19 @@ function ProfileSection() {
         </div>
 
         <div>
+          <label className="block text-sm font-medium text-foreground mb-2">Banner Image URL</label>
+          <input
+            type="url"
+            value={formData.bannerImage}
+            onChange={(e) => updateField("bannerImage", e.target.value)}
+            placeholder="https://example.com/your-banner.jpg"
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-secondary text-sm placeholder:text-muted-foreground"
+            data-testid="input-banner-image"
+          />
+          <p className="text-xs text-muted-foreground mt-1.5">Recommended: 1200x400px. Shows on your unlock pages</p>
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-foreground mb-2">Audience Message</label>
           <textarea
             value={formData.audienceMessage}
@@ -274,6 +298,7 @@ function ProfileSection() {
             Account Info: {user?.email} · Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "-"}
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

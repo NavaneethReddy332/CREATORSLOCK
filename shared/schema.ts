@@ -10,6 +10,7 @@ export const users = sqliteTable("users", {
   password: text("password").notNull(),
   displayName: text("display_name"),
   profileImage: text("profile_image"),
+  bannerImage: text("banner_image"),
   bannerColor: text("banner_color").default("#6366f1"),
   accentColor: text("accent_color").default("#8b5cf6"),
   audienceMessage: text("audience_message"),

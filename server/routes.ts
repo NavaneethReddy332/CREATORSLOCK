@@ -14,6 +14,7 @@ function serializeUser(user: any) {
     email: rest.email,
     displayName: rest.display_name ?? rest.displayName ?? null,
     profileImage: rest.profile_image ?? rest.profileImage ?? null,
+    bannerImage: rest.banner_image ?? rest.bannerImage ?? null,
     bannerColor: rest.banner_color ?? rest.bannerColor ?? "#6366f1",
     accentColor: rest.accent_color ?? rest.accentColor ?? "#8b5cf6",
     audienceMessage: rest.audience_message ?? rest.audienceMessage ?? null,
@@ -173,6 +174,7 @@ export async function registerRoutes(
       
       if (displayName !== undefined) updateData.displayName = displayName;
       if (profileImage !== undefined) updateData.profileImage = profileImage;
+      if (req.body.bannerImage !== undefined) updateData.bannerImage = req.body.bannerImage;
       if (bannerColor !== undefined) updateData.bannerColor = bannerColor;
       if (accentColor !== undefined) updateData.accentColor = accentColor;
       if (audienceMessage !== undefined) updateData.audienceMessage = audienceMessage;
@@ -332,6 +334,14 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Link not found" });
       }
 
+      const creator = await storage.getUser(link.userId);
+      const serializedCreator = creator ? {
+        displayName: creator.displayName || creator.username,
+        profileImage: creator.profileImage,
+        bannerImage: creator.bannerImage,
+        audienceMessage: creator.audienceMessage,
+      } : null;
+
       const actionsWithUrls = await Promise.all(
         link.parsedRequiredActions.map(async (action) => {
           const connection = await storage.getConnection(action.connectionId);
@@ -346,7 +356,8 @@ export async function registerRoutes(
         link: {
           ...link,
           parsedRequiredActions: actionsWithUrls,
-        }
+        },
+        creator: serializedCreator,
       });
     } catch (error) {
       console.error(error);

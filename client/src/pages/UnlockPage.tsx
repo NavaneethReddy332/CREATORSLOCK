@@ -18,6 +18,13 @@ interface LockedLink {
   parsedRequiredActions: RequiredAction[];
 }
 
+interface Creator {
+  displayName: string | null;
+  profileImage: string | null;
+  bannerImage: string | null;
+  audienceMessage: string | null;
+}
+
 interface UnlockAttempt {
   id: number;
   linkId: number;
@@ -130,6 +137,7 @@ export default function UnlockPage() {
   });
 
   const link: LockedLink | undefined = linkData?.link;
+  const creator: Creator | undefined = linkData?.creator;
 
   const { data: attemptData, isLoading: attemptLoading } = useQuery({
     queryKey: ['/api/unlock', link?.id],
@@ -265,50 +273,98 @@ export default function UnlockPage() {
       >
         <div className="bg-card border border-border rounded overflow-hidden">
           <motion.div 
-            className="bg-primary p-4 text-white text-center relative overflow-hidden"
+            className="relative overflow-hidden"
             animate={allDone ? { scale: [1, 1.02, 1] } : {}}
             transition={{ duration: 0.3 }}
           >
-            <motion.div 
-              className="w-10 h-10 mx-auto mb-3 bg-white/20 rounded flex items-center justify-center relative"
-              animate={allDone ? { rotate: [0, -10, 10, 0] } : {}}
-              transition={{ duration: 0.5 }}
+            <div 
+              className="h-20 bg-primary relative"
+              style={creator?.bannerImage ? { 
+                backgroundImage: `url(${creator.bannerImage})`, 
+                backgroundSize: 'cover', 
+                backgroundPosition: 'center' 
+              } : {}}
+              data-testid="img-creator-banner"
             >
-              <AnimatePresence mode="wait">
-                {allDone ? (
-                  <motion.div
-                    key="unlocked"
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            </div>
+            
+            <div className="relative px-4 -mt-6">
+              <div className="flex items-end gap-3 mb-3">
+                <div 
+                  className="w-12 h-12 rounded-full bg-primary flex items-center justify-center overflow-hidden border-2 border-card flex-shrink-0"
+                  data-testid="img-creator-avatar"
+                >
+                  {creator?.profileImage ? (
+                    <img 
+                      src={creator.profileImage} 
+                      alt={creator.displayName || "Creator"} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-primary-foreground">
+                      {(creator?.displayName || "C").slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="pb-1">
+                  <p className="text-sm font-semibold text-foreground" data-testid="text-creator-name">
+                    {creator?.displayName || "Creator"}
+                  </p>
+                </div>
+              </div>
+              
+              {creator?.audienceMessage && (
+                <p className="text-xs text-muted-foreground mb-3 leading-relaxed" data-testid="text-audience-message">
+                  {creator.audienceMessage}
+                </p>
+              )}
+              
+              <div className="flex items-center justify-center gap-2 py-3 border-t border-border/50 -mx-4 px-4 bg-secondary/30">
+                <motion.div 
+                  className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center relative"
+                  animate={allDone ? { rotate: [0, -10, 10, 0] } : {}}
+                  transition={{ duration: 0.5 }}
+                >
+                  <AnimatePresence mode="wait">
+                    {allDone ? (
+                      <motion.div
+                        key="unlocked"
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        exit={{ scale: 0 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      >
+                        <Unlock size={16} className="text-primary" />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="locked"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                      >
+                        <Lock size={16} className="text-primary" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {allDone && <SparkleEffect />}
+                </motion.div>
+                <div>
+                  <motion.h1 
+                    className="text-sm font-medium text-foreground"
+                    layout
                   >
-                    <Unlock size={20} className="text-white" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="locked"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                  >
-                    <Lock size={20} className="text-white" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              {allDone && <SparkleEffect />}
-            </motion.div>
-            <motion.h1 
-              className="text-sm font-medium mb-0.5"
-              layout
-            >
-              {allDone ? "Content Unlocked!" : "Unlock This Content"}
-            </motion.h1>
-            <p className="text-white/70 text-xs">
-              {allDone 
-                ? "You now have full access" 
-                : "Complete the steps below to unlock"}
-            </p>
+                    {allDone ? "Content Unlocked!" : "Unlock This Content"}
+                  </motion.h1>
+                  <p className="text-muted-foreground text-xs">
+                    {allDone 
+                      ? "You now have full access" 
+                      : "Complete the steps below"}
+                  </p>
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           <div className="p-4">
