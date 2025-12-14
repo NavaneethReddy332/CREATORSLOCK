@@ -99,3 +99,27 @@ export const insertUnlockAttemptSchema = createInsertSchema(unlockAttempts).omit
 });
 export type InsertUnlockAttempt = z.infer<typeof insertUnlockAttemptSchema>;
 export type UnlockAttempt = typeof unlockAttempts.$inferSelect;
+
+export const linkFiles = sqliteTable("link_files", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  linkId: integer("link_id").notNull().references(() => lockedLinks.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  fileSize: integer("file_size").notNull(),
+  mimeType: text("mime_type").notNull(),
+  driveFileId: text("drive_file_id").notNull(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const linkFilesRelations = relations(linkFiles, ({ one }) => ({
+  lockedLink: one(lockedLinks, {
+    fields: [linkFiles.linkId],
+    references: [lockedLinks.id],
+  }),
+}));
+
+export const insertLinkFileSchema = createInsertSchema(linkFiles).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertLinkFile = z.infer<typeof insertLinkFileSchema>;
+export type LinkFile = typeof linkFiles.$inferSelect;

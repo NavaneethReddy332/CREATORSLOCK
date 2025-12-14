@@ -1,42 +1,57 @@
-# YouRise Project State - December 14, 2025
+# Persisted Information for Next Context
 
-## Completed Work
+## Current Task
+Adding Google Drive file upload integration for creators who want to upload files instead of providing URLs.
 
-### 1. Turso Database Migration (Complete)
-- Converted entire project from PostgreSQL to Turso (libSQL)
-- Updated shared/schema.ts from pg-core to sqlite-core syntax
-- Updated server/db.ts to use @libsql/client
-- Updated drizzle.config.ts for Turso dialect
-- Removed pg and @types/pg packages
-- User provided TURSO_DATABASE_URL and TURSO_AUTH_TOKEN secrets
+## Google Drive Integration Progress
+- [x] GOOGLE_SERVICE_ACCOUNT_JSON secret added
+- [x] googleapis and multer packages installed
+- [x] Schema updated - added `linkFiles` table in `shared/schema.ts`
+- [x] Database schema pushed with `npm run db:push`
+- [x] Created `server/drive.ts` - Google Drive service for upload/download
+- [x] Updated `server/storage.ts` - Added file CRUD methods
+- [x] Updated `server/routes.ts` - Added file upload/download API endpoints
+- [x] Updated `server/index.ts` - Added trust proxy for Render deployment
+- [IN PROGRESS] Updating `client/src/pages/DashboardPage.tsx` - Adding file upload UI
 
-### 2. Banner & Creator Profile Feature (Complete)
-- Added bannerImage field to users table in schema
-- Updated ProfileSection in AccountPage.tsx with banner URL input field
-- Updated API /api/links/:code to return creator profile (displayName, profileImage, bannerImage, audienceMessage)
-- Updated UnlockPage.tsx to display creator profile with banner, avatar, name, and audience message
-- Schema pushed to Turso database
+## DashboardPage.tsx Current State
+Already added:
+- State: uploadedFiles, isUploading, createdLinkId, fileInputRef
+- Functions: handleFileSelect, removeFile, formatFileSize
+- Updated createLinkMutation to upload files after creating link
+- Updated handleGenerate to accept files OR URL
 
-## Current State
-- Application running on port 5000
-- All features working correctly
-- User tested the app and it works: logged in, set profile with banner image, added connections, created locked link, and verified unlock page shows creator profile
+STILL NEED TO ADD in DashboardPage.tsx:
+1. Hidden file input element
+2. File upload button/UI section after Content URL input
+3. Display list of uploaded files with remove buttons
+4. Update generate button disabled state to check for files too
 
-## Database Schema
-Users table includes: id, username, email, password, displayName, profileImage, bannerImage, bannerColor, accentColor, audienceMessage, createdAt
+## Still Need To Create
+1. Finish DashboardPage.tsx file upload UI (add JSX after Content URL input section)
+2. Create `client/src/pages/DownloadPage.tsx` - Download page for after unlock completion
+3. Update `client/src/pages/UnlockPage.tsx` - Redirect to download page when link has files (targetUrl === "__FILES__")
+4. Register DownloadPage route in App.tsx
+5. Restart workflow and test
+6. Call architect for review
 
-## Key Files
-- shared/schema.ts - Database schema with all tables
-- server/db.ts - Turso database connection
-- server/routes.ts - API routes including /api/links/:code with creator profile
-- client/src/pages/AccountPage.tsx - Profile section with banner input
-- client/src/pages/UnlockPage.tsx - Shows creator profile on locked pages
+## API Endpoints Added
+- POST /api/files/upload/:linkId - Upload file to Google Drive
+- GET /api/files/:linkId - Get files for a link  
+- DELETE /api/files/:fileId - Delete a file
+- GET /api/files/download/:fileId - Get download URL
 
-## User's Original Request
-User wanted:
-1. Switch entire project to Turso database only - DONE
-2. Add banner in profile section with link input - DONE
-3. Update lock page to show creator profile (name, profile image, banner, audience message) - DONE
-4. Fix any flaws found - DONE
+## Key Files to Reference
+- `shared/schema.ts` - Has linkFiles table
+- `server/drive.ts` - Google Drive service
+- `server/routes.ts` - File upload/download endpoints
+- `client/src/pages/DashboardPage.tsx` - Partially updated, needs UI
+- `client/src/pages/UnlockPage.tsx` - Needs update to redirect to download page
+- `client/src/App.tsx` - Need to add DownloadPage route
 
-All requests completed successfully.
+## Database
+- Uses Turso (libsql) - TURSO_DATABASE_URL and TURSO_AUTH_TOKEN
+- linkFiles table: id, linkId, fileName, fileSize, mimeType, driveFileId, createdAt
+
+## User Request Summary
+User wants: Creators can upload files with "+" button when creating lock page. After tasks complete on unlock page, redirect to download page to get files.

@@ -3,12 +3,14 @@ import {
   connections,
   lockedLinks,
   unlockAttempts,
+  linkFiles,
   type User, 
   type InsertUser,
   type Connection,
   type InsertConnection,
   type LockedLink,
   type UnlockAttempt,
+  type LinkFile,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -54,6 +56,11 @@ export interface IStorage {
   createUnlockAttempt(attempt: UnlockAttemptInput): Promise<UnlockAttempt>;
   getUnlockAttempt(linkId: number): Promise<(UnlockAttempt & { parsedCompletedActions: string[] }) | undefined>;
   updateUnlockAttempt(id: number, data: Partial<UnlockAttemptInput>): Promise<UnlockAttempt | undefined>;
+
+  createLinkFile(file: { linkId: number; fileName: string; fileSize: number; mimeType: string; driveFileId: string }): Promise<LinkFile>;
+  getLinkFiles(linkId: number): Promise<LinkFile[]>;
+  getLinkFile(id: number): Promise<LinkFile | undefined>;
+  deleteLinkFile(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -177,6 +184,24 @@ export class DatabaseStorage implements IStorage {
       .where(eq(unlockAttempts.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async createLinkFile(file: { linkId: number; fileName: string; fileSize: number; mimeType: string; driveFileId: string }): Promise<LinkFile> {
+    const [newFile] = await db.insert(linkFiles).values(file).returning();
+    return newFile;
+  }
+
+  async getLinkFiles(linkId: number): Promise<LinkFile[]> {
+    return await db.select().from(linkFiles).where(eq(linkFiles.linkId, linkId));
+  }
+
+  async getLinkFile(id: number): Promise<LinkFile | undefined> {
+    const [file] = await db.select().from(linkFiles).where(eq(linkFiles.id, id));
+    return file || undefined;
+  }
+
+  async deleteLinkFile(id: number): Promise<void> {
+    await db.delete(linkFiles).where(eq(linkFiles.id, id));
   }
 }
 

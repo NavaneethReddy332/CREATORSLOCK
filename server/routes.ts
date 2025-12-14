@@ -4,6 +4,13 @@ import { storage } from "./storage";
 import { insertUserSchema, insertConnectionSchema, insertLockedLinkSchema } from "@shared/schema";
 import { ZodError, z } from "zod";
 import bcrypt from "bcryptjs";
+import multer from "multer";
+import { uploadFileToDrive, getFileDownloadUrl, deleteFileFromDrive, getFileStream } from "./drive";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
 
 function serializeUser(user: any) {
   if (!user) return null;
@@ -427,6 +434,98 @@ export async function registerRoutes(
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/files/upload/:linkId", requireAuth, upload.single("file"), async (req, res) => {
+    try {
+      const linkId = parseInt(req.params.linkId);
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ error: "No file provided" });
+      }
+
+      const link = await storage.getLockedLinkByCode("");
+      const links = await storage.getUserLockedLinks(req.session.userId!);
+      const userLink = links.find(l => l.id === linkId);
+      
+      if (!userLink) {
+        return res.status(404).json({ error: "Link not found" });
+      }
+
+      const driveFileId = await uploadFileToDrive(
+        file.buffer,
+        file.originalname,
+        file.mimetype
+      );
+
+      const linkFile = await storage.createLinkFile({
+        linkId,
+        fileName: file.originalname,
+        fileSize: file.size,
+        mimeType: file.mimetype,
+        driveFileId,
+      });
+
+      res.json({ file: linkFile });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Failed to upload file" });
+    }
+  });
+
+  app.get("/api/files/:linkId", async (req, res) => {
+    try {
+      const linkId = parseInt(req.params.linkId);
+      const files = await storage.getLinkFiles(linkId);
+      res.json({ files });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/files/:fileId", requireAuth, async (req, res) => {
+    try {
+      const fileId = parseInt(req.params.fileId);
+      const file = await storage.getLinkFile(fileId);
+
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+
+      const links = await storage.getUserLockedLinks(req.session.userId!);
+      const ownsLink = links.some(l => l.id === file.linkId);
+
+      if (!ownsLink) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      await deleteFileFromDrive(file.driveFileId);
+      await storage.deleteLinkFile(fileId);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Failed to delete file" });
+    }
+  });
+
+  app.get("/api/files/download/:fileId", async (req, res) => {
+    try {
+      const fileId = parseInt(req.params.fileId);
+      const file = await storage.getLinkFile(fileId);
+
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+
+      const downloadUrl = await getFileDownloadUrl(file.driveFileId);
+      res.json({ downloadUrl, fileName: file.fileName });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Failed to get download URL" });
     }
   });
 

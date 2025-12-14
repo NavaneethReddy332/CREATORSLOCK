@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { RequireAuth, useAuth } from "@/lib/auth";
-import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe, Loader2 } from "lucide-react";
+import { Plus, ExternalLink, Trash2, Youtube, Instagram, Copy, Check, Link2, BarChart3, Sparkles, Twitter, Facebook, Twitch, Github, Linkedin, Globe, Loader2, Upload, File, X } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -19,6 +19,12 @@ function TikTokIcon({ size = 14, className = "" }: { size?: number; className?: 
   );
 }
 
+interface UploadedFile {
+  file: File;
+  name: string;
+  size: number;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -26,6 +32,10 @@ export default function Dashboard() {
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [createdLinkId, setCreatedLinkId] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: connectionsData, isLoading: connectionsLoading } = useQuery<{ connections: Connection[] }>({
     queryKey: ["connections"],
@@ -42,11 +52,13 @@ export default function Dashboard() {
   const createLinkMutation = useMutation({
     mutationFn: async () => {
       const code = Math.random().toString(36).substring(2, 10);
+      const finalTargetUrl = uploadedFiles.length > 0 ? `__FILES__` : targetUrl;
+      
       const res = await fetch("/api/links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          targetUrl,
+          targetUrl: finalTargetUrl,
           unlockCode: code,
           requiredActions: selectedPlatforms.map((platform, i) => ({
             platform,
@@ -56,15 +68,58 @@ export default function Dashboard() {
         }),
       });
       if (!res.ok) throw new Error("Failed to create link");
-      return { code };
+      const data = await res.json();
+      return { code, linkId: data.link.id };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      setCreatedLinkId(data.linkId);
+      
+      if (uploadedFiles.length > 0) {
+        setIsUploading(true);
+        for (const uploadedFile of uploadedFiles) {
+          const formData = new FormData();
+          formData.append("file", uploadedFile.file);
+          await fetch(`/api/files/upload/${data.linkId}`, {
+            method: "POST",
+            body: formData,
+          });
+        }
+        setIsUploading(false);
+      }
+      
       setGeneratedLink(`${window.location.origin}/unlock/${data.code}`);
+      setUploadedFiles([]);
     },
   });
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newFiles = Array.from(files).map(file => ({
+        file,
+        name: file.name,
+        size: file.size,
+      }));
+      setUploadedFiles(prev => [...prev, ...newFiles]);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
   const handleGenerate = () => {
-    if (targetUrl && selectedPlatforms.length > 0) {
+    const hasContent = targetUrl || uploadedFiles.length > 0;
+    if (hasContent && selectedPlatforms.length > 0) {
       createLinkMutation.mutate();
     }
   };
