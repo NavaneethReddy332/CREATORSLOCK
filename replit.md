@@ -36,11 +36,12 @@ Preferred communication style: Simple, everyday language.
   - `TURSO_AUTH_TOKEN` - Turso authentication token
 
 ### Database Schema
-Four main tables:
+Five main tables:
 1. **users** - Creator accounts with username/password
 2. **connections** - Social media platform links (YouTube, Instagram, TikTok)
 3. **locked_links** - Generated locked content URLs with unlock codes
 4. **unlock_attempts** - Tracks user progress through unlock requirements
+5. **link_files** - Files uploaded to Google Drive for locked links
 
 ### Database Initialization
 Tables are automatically created on server startup via `server/init-db.ts`. This script creates all necessary tables if they don't exist.
@@ -92,7 +93,24 @@ Tables are automatically created on server startup via `server/init-db.ts`. This
 - **esbuild**: Server bundling for production
 - **tsx**: TypeScript execution for development
 
+### Google Drive Integration
+- **Service Account**: Uses `GOOGLE_SERVICE_ACCOUNT_JSON` secret for authentication
+- **File Storage**: `server/drive.ts` handles file upload/download to Google Drive
+- **API Endpoints**:
+  - `POST /api/files/upload/:linkId` - Upload file to Google Drive
+  - `GET /api/files/:linkId` - Get files for a link
+  - `DELETE /api/files/:fileId` - Delete a file
+  - `GET /api/files/download/:fileId` - Get download URL
+
 ## Recent Changes
+
+### December 14, 2025
+- Added Google Drive file upload integration for creators
+- Created `server/drive.ts` - Google Drive service for file upload/download
+- Added `link_files` table to database schema
+- Updated DashboardPage with file upload UI (upload button, file list, remove buttons)
+- Created DownloadPage.tsx for file downloads after unlock completion
+- Updated UnlockPage.tsx to auto-redirect to download page for file-based links
 
 ### December 13, 2025
 - Fixed API serialization: Added serializeUser() and serializeConnection() helper functions to convert snake_case database fields to camelCase for frontend compatibility
